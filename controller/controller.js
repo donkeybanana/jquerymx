@@ -123,7 +123,7 @@ var bind = function(el, ev, callback) {
  *
  * do this
  *
- *     $.Controller('Tabs',{
+ *     $.Controller.extend('Tabs',{
  *       click: function() {...},
  *       '.tab click' : function() {...},
  *       '.delete click' : function() {...}
@@ -147,7 +147,7 @@ var bind = function(el, ev, callback) {
  *
  * ### A controller class is created.
  *
- *     $.Controller("MyWidget",
+ *     $.Controller.extend("MyWidget",
  *     {
  *       defaults :  {
  *         message : "Remove Me"
@@ -225,7 +225,7 @@ var bind = function(el, ev, callback) {
  *
  * To add a mousover effect and create todos, your controller might look like:
  *
- *     $.Controller('Todos',{
+ *     $.Controller.extend('Todos',{
  *       ".todo mouseover" : function( el, ev ) {
  *         el.css("backgroundColor","red")
  *       },
@@ -254,7 +254,7 @@ var bind = function(el, ev, callback) {
  *
  * In the following example, I create a controller that when created, will put a message as the content of the element:
  *
- *     $.Controller("SpecialController",
+ *     $.Controller.extend("SpecialController",
  *     {
  *       init: function( el, message ) {
  *         this.element.html(message)
@@ -364,7 +364,7 @@ $.Class(
          * to change the jQuery plugin helper name from its
          * default value.
          *
-         *     $.Controller("Mxui.Layout.Fill",{
+         *     $.Controller.extend("Mxui.Layout.Fill",{
          *       pluginName: "fillWith"
          *     },{});
          *
@@ -539,7 +539,7 @@ $.Class(
      * with templated event handlers:
      *
      *
-     *     $.Controller('Sized',{
+     *     $.Controller.extend('Sized',{
      *       "{window} resize" : function(){
      *         this.element.width(this.element.parent().width() / 2);
      *       }
@@ -554,7 +554,7 @@ $.Class(
      * listens too.  You only need to add event names that
      * are whole words (ie have no special characters).
      *
-     *     $.Controller('TabPanel',{
+     *     $.Controller.extend('TabPanel',{
      *       listensTo : ['show']
      *     },{
      *       'show' : function(){
@@ -571,7 +571,7 @@ $.Class(
      * A object of name-value pairs that act as default values for a controller's
      * [jQuery.Controller.prototype.options options].
      *
-     *     $.Controller("Message",
+     *     $.Controller.extend("Message",
      *     {
      *       defaults : {
      *         message : "Hello World"
@@ -655,7 +655,7 @@ $.Class(
        *
        * For example:
        *
-       *     $.Controller('Hello')
+       *     $.Controller.extend('Hello')
        *
        *     var h1 = new Hello($('#content1'), {message: 'World'} );
        *     equal( h1.options.message , "World" )
@@ -669,7 +669,7 @@ $.Class(
        *
        * For example:
        *
-       *     $.Controller("Tabs",
+       *     $.Controller.extend("Tabs",
        *     {
        *        defaults : {
        *          activeClass: "ui-active-state"
@@ -709,7 +709,7 @@ $.Class(
        *
        * For example, if I add MyWidget to a '#myelement' element like:
        *
-       *     $.Controller("MyWidget",{
+       *     $.Controller.extend("MyWidget",{
        *       init : function(){
        *         this.element.css("color","red")
        *       }
@@ -726,7 +726,7 @@ $.Class(
        *
        * To change this.element, overwrite Controller's setup method like:
        *
-       *     $.Controller("Combobox",{
+       *     $.Controller.extend("Combobox",{
        *       setup : function(el, options){
        *          this.oldElement = $(el);
        *          var newEl = $('<div/>');
@@ -880,7 +880,7 @@ $.Class(
      * is submitted, it creates the recipe on the server.  When the recipe
      * is `created`, it resets the form with a new instance.
      *
-     *     $.Controller('Creator',{
+     *     $.Controller.extend('Creator',{
      *       "{recipe} created" : function(){
      *         this.update({recipe : new Recipe()});
      *         this.element[0].reset();
@@ -906,7 +906,7 @@ $.Class(
      * For example, a widget that listens for model updates
      * and updates it's html would look like.
      *
-     *     $.Controller('Updater',{
+     *     $.Controller.extend('Updater',{
      *       // when the controller is created, update the html
      *       init : function(){
      *         this.updateView();
@@ -951,7 +951,7 @@ $.Class(
      *
      * ### Example
      *
-     *     $.Controller("Thing",{
+     *     $.Controller.extend("Thing",{
      *       init: function( el, options ) {
      *         alert( 'init:'+this.options.prop )
      *       },
@@ -978,7 +978,7 @@ $.Class(
      * if the element is removed.  You can overwrite it to add your own
      * teardown functionality:
      *
-     *     $.Controller("ChangeText",{
+     *     $.Controller.extend("ChangeText",{
      *       init : function(){
      *         this.oldText = this.element.text();
      *         this.element.text("Changed!!!")

@@ -105,7 +105,7 @@ var initializing = false,
  * count is incremented.
  *
  * @codestart
- * $.Class('Monster',
+ * $.Class.extend('Monster',
  * /* @static *|
  * {
  *   count: 0
@@ -174,7 +174,7 @@ var initializing = false,
  *
  * You can also inherit static properties in the same way:
  *
- *     $.Class("First",
+ *     $.Class.extend("First",
  *     {
  *         staticMethod: function() { return 1;}
  *     },{})
@@ -192,7 +192,7 @@ var initializing = false,
  * Making a namespaced class is easy:
  *
  *
- *     $.Class("MyNamespace.MyClass",{},{});
+ *     $.Class.extend("MyNamespace.MyClass",{},{});
  *
  *     new MyNamespace.MyClass()
  *
@@ -204,7 +204,7 @@ var initializing = false,
  * is a great example of this.  Unfortunately, JavaScript doesn't have a way of determining
  * an object's name, so the developer must provide a name.  Class fixes this by taking a String name for the class.
  *
- *     $.Class("MyOrg.MyClass",{},{})
+ *     $.Class.extend("MyOrg.MyClass",{},{})
  *     MyOrg.MyClass.shortName //-> 'MyClass'
  *     MyOrg.MyClass.fullName //->  'MyOrg.MyClass'
  *
@@ -225,7 +225,7 @@ var initializing = false,
  *
  * </div>
  * @codestart
- * $.Class("MyClass",
+ * $.Class.extend("MyClass",
  * {
  *   setup: function() {} //static setup
  *   init: function() {} //static constructor
@@ -254,7 +254,7 @@ var initializing = false,
  * even if it is passed a raw
  * HTMLElement and no second parameter.
  *
- *     $.Class("jQuery.Controller",{
+ *     $.Class.extend("jQuery.Controller",{
  *       ...
  *     },{
  *       setup: function( el, options ) {
@@ -275,7 +275,7 @@ var initializing = false,
  * as their preceding setup function.  The Foo class's <code>init</code> method
  * gets called in the following example:
  *
- *     $.Class("Foo", {
+ *     $.Class.extend("Foo", {
  *       init: function( arg1, arg2, arg3 ) {
  *         this.sum = arg1+arg2+arg3;
  *       }
@@ -295,7 +295,7 @@ var initializing = false,
  * The following example uses this.proxy to make sure
  * <code>this.name</code> is available in <code>show</code>.
  *
- *     $.Class("Todo",{
+ *     $.Class.extend("Todo",{
  *       init: function( name ) {
  *       	this.name = name
  *       },
@@ -319,7 +319,7 @@ var initializing = false,
  *
  * To create a Class call:
  *
- *     $.Class( [NAME , STATIC,] PROTOTYPE ) -> Class
+ *     $.Class.extend( [NAME , STATIC,] PROTOTYPE ) -> Class
  *
  * <div class='params'>
  *   <div class='param'><label>NAME</label><code>{optional:String}</code>
@@ -364,7 +364,7 @@ extend(clss, {
    * Returns a callback function for a function on this Class.
    * Proxy ensures that 'this' is set appropriately.
    * @codestart
-   * $.Class("MyClass",{
+   * $.Class.extend("MyClass",{
    *     getData: function() {
    *         this.showing = null;
    *         $.get("data.json",this.proxy('gotData'),'json')
@@ -378,7 +378,7 @@ extend(clss, {
    * <h2>Currying Arguments</h2>
    * Additional arguments to proxy will fill in arguments on the returning function.
    * @codestart
-   * $.Class("MyClass",{
+   * $.Class.extend("MyClass",{
    *    getData: function( <b>callback</b> ) {
    *      $.get("data.json",this.proxy('process',<b>callback</b>),'json');
    *    },
@@ -395,7 +395,7 @@ extend(clss, {
    * is called each function in the array is passed the return value of the prior function.  This is often used
    * to eliminate currying initial arguments.
    * @codestart
-   * $.Class("MyClass",{
+   * $.Class.extend("MyClass",{
    *    getData: function( callback ) {
    *      //calls process, then callback with value from process
    *      $.get("data.json",this.proxy(['process2',callback]),'json')
@@ -477,7 +477,7 @@ extend(clss, {
    * with arbitrary parameters.
    * <h3>Example</h3>
    * @codestart
-   * $.Class("MyClass",{},{})
+   * $.Class.extend("MyClass",{},{})
    * var mc = MyClass.newInstance.apply(null, new Array(parseInt(Math.random()*10,10))
    * @codeend
    * @return {class} instance of the class
@@ -504,7 +504,7 @@ extend(clss, {
    * Setup will deeply extend a static defaults property on the base class with
    * properties on the base class.  For example:
    *
-   *     $.Class("MyBase",{
+   *     $.Class.extend("MyBase",{
    *       defaults : {
    *         foo: 'bar'
    *       }
@@ -541,21 +541,21 @@ extend(clss, {
    * to use extend:
    *
    *     // with className, static and prototype functions
-   *     $.Class('Task',{ STATIC },{ PROTOTYPE })
+   *     $.Class.extend('Task',{ STATIC },{ PROTOTYPE })
    *     // with just classname and prototype functions
-   *     $.Class('Task',{ PROTOTYPE })
+   *     $.Class.extend('Task',{ PROTOTYPE })
    *     // with just a className
-   *     $.Class('Task')
+   *     $.Class.extend('Task')
    *
    * You no longer have to use <code>.extend</code>.  Instead, you can pass those options directly to
    * $.Class (and any inheriting classes):
    *
    *     // with className, static and prototype functions
-   *     $.Class('Task',{ STATIC },{ PROTOTYPE })
+   *     $.Class.extend('Task',{ STATIC },{ PROTOTYPE })
    *     // with just classname and prototype functions
-   *     $.Class('Task',{ PROTOTYPE })
+   *     $.Class.extend('Task',{ PROTOTYPE })
    *     // with just a className
-   *     $.Class('Task')
+   *     $.Class.extend('Task')
    *
    * @param {String} [fullName]  the classes name (used for classes w/ introspection)
    * @param {Object} [klass]  the new classes static/class functions
@@ -640,7 +640,7 @@ extend(clss, {
        * @attribute namespace
        * The namespaces object
        *
-       *     $.Class("MyOrg.MyClass",{},{})
+       *     $.Class.extend("MyOrg.MyClass",{},{})
        *     MyOrg.MyClass.namespace //-> MyOrg
        *
        */
@@ -649,7 +649,7 @@ extend(clss, {
        * @attribute shortName
        * The name of the class without its namespace, provided for introspection purposes.
        *
-       *     $.Class("MyOrg.MyClass",{},{})
+       *     $.Class.extend("MyOrg.MyClass",{},{})
        *     MyOrg.MyClass.shortName //-> 'MyClass'
        *     MyOrg.MyClass.fullName //->  'MyOrg.MyClass'
        *
@@ -660,7 +660,7 @@ extend(clss, {
        * @attribute fullName
        * The full name of the class, including namespace, provided for introspection purposes.
        *
-       *     $.Class("MyOrg.MyClass",{},{})
+       *     $.Class.extend("MyOrg.MyClass",{},{})
        *     MyOrg.MyClass.shortName //-> 'MyClass'
        *     MyOrg.MyClass.fullName //->  'MyOrg.MyClass'
        *
@@ -687,7 +687,7 @@ extend(clss, {
      * instances is created.  It gets passed the same arguments that
      * were given to the Class constructor function (<code> new Class( arguments ... )</code>).
      *
-     *     $.Class("MyClass",
+     *     $.Class.extend("MyClass",
      *     {
      *        setup: function( val ) {
      *           this.val = val;
@@ -699,7 +699,7 @@ extend(clss, {
      * Setup is called before [jQuery.Class.prototype.init init].  If setup
      * return an array, those arguments will be used for init.
      *
-     *     $.Class("jQuery.Controller",{
+     *     $.Class.extend("jQuery.Controller",{
      *       setup : function(htmlElement, rawOptions){
      *         return [$(htmlElement),
      *                   $.extend({}, this.Class.defaults, rawOptions )]
@@ -715,7 +715,7 @@ extend(clss, {
      * Setup is not defined on $.Class itself, so calling super in inherting classes
      * will break.  Don't do the following:
      *
-     *     $.Class("Thing",{
+     *     $.Class.extend("Thing",{
      *       setup : function(){
      *         this._super(); // breaks!
      *       }
@@ -732,7 +732,7 @@ extend(clss, {
      * same arguments passed to the Class
      * constructor: (<code> new Class( arguments ... )</code>).
      *
-     *     $.Class("MyClass",
+     *     $.Class.extend("MyClass",
      *     {
      *        init: function( val ) {
      *           this.val = val;
@@ -755,7 +755,7 @@ extend(clss, {
      * ### Quick Example
      *
      *     // a class with a static property
-     *     $.Class("MyClass", {staticProperty : true}, {});
+     *     $.Class.extend("MyClass", {staticProperty : true}, {});
      *
      *     // a new instance of myClass
      *     var mc1 = new MyClass();
