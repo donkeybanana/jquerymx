@@ -1,8 +1,8 @@
-//jQuery.Class
+// jQuery.Class
 // This is a modified version of John Resig's class
 // http://ejohn.org/blog/simple-javascript-inheritance/
 // It provides class level inheritance and callbacks.
-//!steal-clean
+
 import 'jquery';
 import 'lang/string/string.js';
 

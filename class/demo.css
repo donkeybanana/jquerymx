@@ -1,0 +1,30 @@
+body {font-family: verdana}
+.tabs, .history_tabs {
+    padding: 0px; margin: 20px 0 0 0;
+}
+li {
+    float: left;
+    padding: 10px;
+    background-color: #F6F6F6;
+    list-style: none;
+    margin-left: 10px;
+}
+li a {
+    color: #1C94C4;
+    font-weight: bold;
+    text-decoration: none;
+}
+li.active a {
+    color: #F6A828;
+    cursor: default;
+}
+.tab {
+    border: solid 1px #F6A828;
+}
+/* clearfix from jQueryUI */
+.ui-helper-clearfix:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+.ui-helper-clearfix { display: inline-block; }
+/* required comment for clearfix to work in Opera \*/
+* html .ui-helper-clearfix { height:1%; }
+.ui-helper-clearfix { display:block; }
+/* end clearfix */
