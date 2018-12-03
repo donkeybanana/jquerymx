@@ -1,7 +1,7 @@
 import 'class/class.js';
 import { module, test } from 'qunit/qunit/qunit.js';
 
-module('jquery/class');
+module('class');
 
 test('Creating', function(assert) {
   jQuery.Class.extend(
