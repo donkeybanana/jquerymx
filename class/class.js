@@ -4,7 +4,7 @@
 // It provides class level inheritance and callbacks.
 
 import 'jquery';
-import 'lang/string/string.js';
+import '../lang/string/string.js';
 
 // =============== HELPERS =================
 
