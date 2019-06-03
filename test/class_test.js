@@ -184,7 +184,7 @@ test('Creating without extend', function(assert) {
   });
   new Bar().ok();
 
-  Bar('Foo', {
+  Bar.extend('Foo', {
     dude: function(status) {
       assert.ok(status, 'dude called');
     }
