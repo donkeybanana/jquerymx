@@ -405,10 +405,13 @@ $.ajaxTransport('view', function(options, orig) {
   // you should only be using // if you are using steal
   if (url.match(/^\/\//)) {
     var sub = url.substr(2);
-    url =
-      typeof steal === 'undefined'
-        ? (url = '/' + sub)
-        : steal.root.mapJoin(sub) + '';
+    url = (
+      typeof steal === 'undefined' ||
+      typeof steal.root === 'undefined' ||
+      typeof steal.root.mapJoin
+    )
+      ? (url = '/' + sub)
+      : steal.root.mapJoin(sub) + '';
   }
 
   //set the template engine type

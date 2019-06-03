@@ -5,7 +5,7 @@ import { module, test } from 'qunit/qunit/qunit.js';
 module('controller/view');
 
 test('this.view', function(assert) {
-  $.Controller.extend('jquery.Controller.View.Test.Qunit', {
+  const C = $.Controller.extend('Test.Controller', {
     init: function() {
       this.element.html(this.view());
     }
@@ -13,13 +13,13 @@ test('this.view', function(assert) {
   jQuery.View.ext = '.micro';
   $('#qunit-test-area').append("<div id='cont_view'/>");
 
-  new jquery.Controller.View.Test.Qunit($('#cont_view'));
+  new C($('#cont_view'));
 
   assert.ok(/Hello World/i.test($('#cont_view').text()), 'view rendered');
 });
 
 test('test.suffix.doubling', function(assert) {
-  $.Controller.extend('jquery.Controller.View.Test.Qunit', {
+  const C = $.Controller.extend('Test.Controller', {
     init: function() {
       this.element.html(this.view('init.micro'));
     }
@@ -30,7 +30,7 @@ test('test.suffix.doubling', function(assert) {
 
   $('#qunit-test-area').append("<div id='suffix_test_cont_view'/>");
 
-  new jquery.Controller.View.Test.Qunit($('#suffix_test_cont_view'));
+  new C($('#suffix_test_cont_view'));
 
   assert.ok(
     /Hello World/i.test($('#suffix_test_cont_view').text()),
@@ -39,28 +39,37 @@ test('test.suffix.doubling', function(assert) {
 });
 
 test('complex paths nested inside a controller directory', function(assert) {
-  $.Controller.extend('Myproject.Controllers.Foo.Bar');
-
-  var path = jQuery.Controller._calculatePosition(
-    Myproject.Controllers.Foo.Bar,
-    'init.ejs',
-    'init'
-  );
+  const C1 = $.Controller.extend('Myproject.Controllers.Foo.Bar');
+  const path1 = jQuery.Controller._calculatePosition(C1, 'init.ejs', 'init');
   assert.equal(
-    path,
+    path1,
     '//myproject/views/foo/bar/init.ejs',
     'view path is correct'
   );
-
-  $.Controller.extend('Myproject.Controllers.FooBar');
-  path = jQuery.Controller._calculatePosition(
-    Myproject.Controllers.FooBar,
-    'init.ejs',
-    'init'
-  );
   assert.equal(
-    path,
+    path1,
+    jQuery.Controller._calculatePosition(
+      Myproject.Controllers.Foo.Bar,
+      'init.ejs',
+      'init'
+    ),
+    'same path is returned for global vs assigned Class'
+  );
+
+  const C2 = $.Controller.extend('Myproject.Controllers.FooBar');
+  const path2 = jQuery.Controller._calculatePosition(C2, 'init.ejs', 'init');
+  assert.equal(
+    path2,
     '//myproject/views/foo_bar/init.ejs',
     'view path is correct'
+  );
+  assert.equal(
+    path1,
+    jQuery.Controller._calculatePosition(
+      Myproject.Controllers.Foo.Bar,
+      'init.ejs',
+      'init'
+    ),
+    'same path is returned for global vs assigned Class'
   );
 });

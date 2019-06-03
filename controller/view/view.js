@@ -1,7 +1,40 @@
 import '../controller.js';
 import '../../view/view.js';
 
-var URI = steal.URI || steal.File;
+const classParts = Class =>
+  Class.fullName.split('.Controllers.').map(part => part.split('.'));
+
+const resolveView = (view, action_name) =>
+  !view ? action_name.replace(/\.|#/g, '').replace(/ /g, '_') : view;
+
+const addSuffix = view =>
+  typeof view == 'string' && /\.[\w\d]+$/.test(view)
+    ? view
+    : view + jQuery.View.ext;
+
+const addPrefix = (view, Class) => {
+  if (!hasControllers(Class) || view.indexOf('/') !== -1) {
+    return view;
+  }
+
+  return jQuery.String.underscore(
+    classParts(Class)[1]
+      .concat(view)
+      .join('/')
+  );
+};
+
+const addRoot = (view, Class) =>
+  '//' +
+  jQuery.String.underscore(
+    classParts(Class)[0]
+      .concat('views')
+      .concat(view)
+      .join('/')
+  );
+
+const hasControllers = Class =>
+  Class.fullName.split('.').indexOf('Controllers') >= 0;
 
 jQuery.Controller.getFolder = function() {
   return jQuery.String.underscore(this.fullName.replace(/\./g, '/')).replace(
@@ -11,48 +44,16 @@ jQuery.Controller.getFolder = function() {
 };
 
 jQuery.Controller._calculatePosition = function(Class, view, action_name) {
-  var classParts = Class.fullName.split('.'),
-    classPartsWithoutPrefix = classParts.slice(0);
-  classPartsWithoutPrefix.splice(0, 2); // Remove prefix (usually 2 elements)
-
-  var classPartsWithoutPrefixSlashes = classPartsWithoutPrefix.join('/'),
-    hasControllers = classParts.length > 2 && classParts[1] == 'Controllers',
-    path = hasControllers
-      ? jQuery.String.underscore(classParts[0])
-      : jQuery.String.underscore(classParts.join('/')),
-    controller_name = jQuery.String.underscore(
-      classPartsWithoutPrefix.join('/')
-    ).toLowerCase(),
-    suffix =
-      typeof view == 'string' && /\.[\w\d]+$/.test(view) ? '' : jQuery.View.ext;
-
-  //calculate view
-  if (typeof view == 'string') {
-    if (view.substr(0, 2) == '//') {
-      //leave where it is
-    } else {
-      view =
-        '//' +
-        URI(path).join(
-          'views/' +
-            (view.indexOf('/') !== -1
-              ? view
-              : (hasControllers ? controller_name + '/' : '') + view)
-        ) +
-        suffix;
-    }
-  } else if (!view) {
-    view =
-      '//' +
-      URI(path).join(
-        'views/' +
-          (hasControllers ? controller_name + '/' : '') +
-          action_name.replace(/\.|#/g, '').replace(/ /g, '_')
-      ) +
-      suffix;
+  if (typeof view == 'string' && view.substr(0, 2) == '//') {
+    return view;
   }
-  return view;
+
+  return addRoot(
+    addPrefix(addSuffix(resolveView(view, action_name)), Class),
+    Class
+  );
 };
+
 var calculateHelpers = function(myhelpers) {
   var helpers = {};
   if (myhelpers) {
