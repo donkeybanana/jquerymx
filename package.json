@@ -8,5 +8,9 @@
   },
   "steal": {
     "paths": {}
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true
   }
 }
