@@ -4,7 +4,7 @@
   "dependencies": {
     "jquery": "^3.3.1",
     "qunit": "^2.8.0",
-    "steal": "^2.1.10"
+    "steal": "^2.2.1"
   },
   "steal": {
     "paths": {}
