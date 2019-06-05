@@ -1,9 +1,9 @@
 import '../../dom/route/route.js';
-import { module, test } from 'qunit/qunit/qunit.js';
+import { assert, module, test } from 'qunit/qunit/qunit.js';
 
 module('dom/route');
 
-test('deparam', function(assert) {
+test('deparam', function() {
   $.route.routes = {};
   $.route(':page', {
     page: 'index'
@@ -43,7 +43,7 @@ test('deparam', function(assert) {
   });
 });
 
-test('deparam of invalid url', function(assert) {
+test('deparam of invalid url', function() {
   $.route.routes = {};
   $.route('pages/:var1/:var2/:var3', {
     var1: 'default1',
@@ -67,7 +67,7 @@ test('deparam of invalid url', function(assert) {
   });
 });
 
-test('deparam of url with non-generated hash (manual override)', function(assert) {
+test('deparam of url with non-generated hash (manual override)', function() {
   $.route.routes = {};
 
   // This won't be set like this by route, but it could easily happen via a
@@ -80,7 +80,7 @@ test('deparam of url with non-generated hash (manual override)', function(assert
   });
 });
 
-test('param', function(assert) {
+test('param', function() {
   $.route.routes = {};
   $.route('pages/:page', {
     page: 'index'
@@ -113,7 +113,7 @@ test('param', function(assert) {
   assert.equal(res, '');
 });
 
-test('symmetry', function(assert) {
+test('symmetry', function() {
   $.route.routes = {};
 
   var obj = { page: '=&[]', nestedArray: ['a'], nested: { a: 'b' } };
@@ -124,7 +124,7 @@ test('symmetry', function(assert) {
   assert.deepEqual(o2, obj);
 });
 
-test('light param', function(assert) {
+test('light param', function() {
   $.route.routes = {};
   $.route(':page', {
     page: 'index'
@@ -146,7 +146,7 @@ test('light param', function(assert) {
   assert.equal(res, 'pages//baz/');
 });
 
-test('param doesnt add defaults to params', function(assert) {
+test('param doesnt add defaults to params', function() {
   $.route.routes = {};
 
   $.route('pages/:p1', {
@@ -156,7 +156,7 @@ test('param doesnt add defaults to params', function(assert) {
   assert.equal(res, 'pages/index');
 });
 
-test('param-deparam', function(assert) {
+test('param-deparam', function() {
   $.route(':page/:type', {
     page: 'index',
     type: 'foo'
@@ -204,7 +204,7 @@ test('param-deparam', function(assert) {
   assert.deepEqual(data, obj);
 });
 
-test('precident', function(assert) {
+test('precident', function() {
   $.route.routes = {};
   $.route(':who', { who: 'index' });
   $.route('search/:search');
@@ -241,7 +241,7 @@ test('precident', function(assert) {
   );
 });
 
-test('precident2', function(assert) {
+test('precident2', function() {
   $.route.routes = {};
   $.route(':type', { who: 'index' });
   $.route(':type/:id');
@@ -255,14 +255,14 @@ test('precident2', function(assert) {
   );
 });
 
-test('linkTo', function(assert) {
+test('linkTo', function() {
   $.route.routes = {};
   $.route(':foo');
   var res = $.route.link('Hello', { foo: 'bar', baz: 'foo' });
   assert.equal(res, '<a href="#!bar&baz=foo" >Hello</a>');
 });
 
-test('param with route defined', function(assert) {
+test('param with route defined', function() {
   $.route.routes = {};
   $.route('holler');
   $.route('foo');
@@ -272,7 +272,7 @@ test('param with route defined', function(assert) {
   assert.equal(res, 'foo&foo=abc');
 });
 
-test('route endings', function(assert) {
+test('route endings', function() {
   $.route.routes = {};
   $.route('foo', { foo: true });
   $.route('food', { food: true });

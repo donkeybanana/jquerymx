@@ -32,9 +32,11 @@ $.ajaxPrefilter(function(settings, originalOptions, jqXHR) {
     if (/^\/\//.test(url)) {
       var sub = settings.fixture.substr(2) + '';
       url =
-        typeof steal === 'undefined'
-          ? (url = '/' + sub)
-          : steal.root.mapJoin(sub) + '';
+        steal !== undefined &&
+        steal.root != undefined &&
+        typeof steal.root.mapJoin === 'funciton'
+          ? steal.root.mapJoin(sub) + ''
+          : (url = '/' + sub);
     }
     //!steal-remove-start
     steal.dev.log('looking for fixture in ' + url);
@@ -716,7 +718,7 @@ $.extend($.fixture, {
    * @param {Number} [max] If min and max are provided, a random number of
    * items between min and max (inclusive) is selected.
    */
-  rand: function(arr, min, max) {
+  rand: function rand(arr, min, max) {
     if (typeof arr == 'number') {
       if (typeof min == 'number') {
         return arr + Math.floor(Math.random() * (min - arr));
@@ -724,7 +726,6 @@ $.extend($.fixture, {
         return Math.floor(Math.random() * arr);
       }
     }
-    var rand = arguments.callee;
     // get a random set
     if (min === undefined) {
       return rand(arr, rand(arr.length + 1));

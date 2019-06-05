@@ -1,5 +1,5 @@
-/*jslint evil: true */
-steal('jquery/view', 'jquery/lang/string/rsplit').then(function( $ ) {
+import View from '../view.js'
+import RSplit from '../lang/string/rsplit/rsplit.js'
 
 	// HELPER METHODS ==============
 	var myEval = function( script ) {
@@ -662,4 +662,3 @@ steal('jquery/view', 'jquery/lang/string/rsplit').then(function( $ ) {
 			});
 		}
 	});
-});

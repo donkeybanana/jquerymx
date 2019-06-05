@@ -1,4 +1,4 @@
-steal('jquery/lang/observe',function(){
+import '../../../lang/observe/observe.js';
 	
 	/**
 	 * @add jQuery.Observe.prototype
@@ -310,4 +310,3 @@ steal('jquery/lang/observe',function(){
 	});
 	// add helpers for testing .. 
 	$.Observe.prototype.delegate.matches = matches;
-})

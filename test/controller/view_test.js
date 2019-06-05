@@ -1,10 +1,10 @@
 import '../../controller/view/view.js';
 import '../../view/micro/micro.js';
-import { module, test } from 'qunit/qunit/qunit.js';
+import { assert, module, test } from 'qunit/qunit/qunit.js';
 
 module('controller/view');
 
-test('this.view', function(assert) {
+test('this.view', function() {
   const C = $.Controller.extend('Test.Controller', {
     init: function() {
       this.element.html(this.view());
@@ -18,7 +18,7 @@ test('this.view', function(assert) {
   assert.ok(/Hello World/i.test($('#cont_view').text()), 'view rendered');
 });
 
-test('test.suffix.doubling', function(assert) {
+test('test.suffix.doubling', function() {
   const C = $.Controller.extend('Test.Controller', {
     init: function() {
       this.element.html(this.view('init.micro'));
@@ -38,7 +38,7 @@ test('test.suffix.doubling', function(assert) {
   );
 });
 
-test('complex paths nested inside a controller directory', function(assert) {
+test('complex paths nested inside a controller directory', function() {
   const C1 = $.Controller.extend('Myproject.Controllers.Foo.Bar');
   const path1 = jQuery.Controller._calculatePosition(C1, 'init.ejs', 'init');
   assert.equal(

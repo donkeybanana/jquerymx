@@ -1,4 +1,4 @@
-steal('jquery/view/ejs').then(function($){
+import '../ejs/ejs.js';
 
 /**
  * @add jQuery.EJS.Helpers.prototype
@@ -344,5 +344,3 @@ $.EJS.Helpers.prototype.link_data = function(store){
 $.EJS.Helpers.prototype.get_data = function(el){
 	return $.EJS.Helpers.get_data(el)
 };
-
-});

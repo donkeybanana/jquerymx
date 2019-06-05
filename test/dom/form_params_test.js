@@ -1,6 +1,6 @@
 import '../../dom/form_params/form_params.js';
 import '../../view/micro/micro.js';
-import { module, test } from 'qunit/qunit/qunit.js';
+import {assert, module, test } from 'qunit/qunit/qunit.js';
 
 module('dom/form_params', {
   beforeEach: () =>
@@ -13,7 +13,7 @@ module('dom/form_params', {
     })
 });
 
-test('with a form', function(assert) {
+test('with a form', function() {
   $('#qunit-test-area').html('test/dom/form_params/basics.micro', {});
 
   var formParams = $('#qunit-test-area form').formParams();
@@ -46,7 +46,7 @@ test('with a form', function(assert) {
   );
 });
 
-test('With a non-form element', function(assert) {
+test('With a non-form element', function() {
   $('#qunit-test-area').html('test/dom/form_params/non-form.micro', {});
 
   var formParams = $('#divform').formParams();
@@ -54,7 +54,7 @@ test('With a non-form element', function(assert) {
   assert.equal(formParams.id, 'foo-bar-baz', 'ID input read correctly');
 });
 
-test('with true false', function(assert) {
+test('with true false', function() {
   $('#qunit-test-area').html('test/dom/form_params/truthy.micro', {});
 
   var formParams = $('#qunit-test-area form').formParams(true);
@@ -65,7 +65,7 @@ test('with true false', function(assert) {
   assert.ok(formParams.wrong === false, "'false' should become false");
 });
 
-test('just strings', function(assert) {
+test('just strings', function() {
   $('#qunit-test-area').html('test/dom/form_params/basics.micro', {});
   var formParams = $('#qunit-test-area form').formParams(false);
   assert.ok(formParams.params.one === '1', 'one is right');
@@ -76,7 +76,7 @@ test('just strings', function(assert) {
   $('#qunit-test-area').html('');
 });
 
-test('empty string conversion', function(assert) {
+test('empty string conversion', function() {
   $('#qunit-test-area').html('test/dom/form_params/basics.micro', {});
   var formParams = $('#qunit-test-area form').formParams(false);
   assert.ok('' === formParams.empty, 'Default empty string conversion');
@@ -84,13 +84,13 @@ test('empty string conversion', function(assert) {
   assert.ok(undefined === formParams.empty, 'Default empty string conversion');
 });
 
-test('missing names', function(assert) {
+test('missing names', function() {
   $('#qunit-test-area').html('test/dom/form_params/checkbox.micro', {});
   var formParams = $('#qunit-test-area form').formParams();
   assert.ok(true, 'does not break');
 });
 
-test('same input names to array', function(assert) {
+test('same input names to array', function() {
   $('#qunit-test-area').html('test/dom/form_params/basics.micro', {});
   var formParams = $('#qunit-test-area form').formParams(true);
   assert.deepEqual(formParams.param1, ['first', 'second', 'third']);
