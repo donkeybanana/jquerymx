@@ -18,7 +18,11 @@ import './lang/observe_test.js';
 import './lang/observe/delegate_test.js';
 import './lang/object_test.js';
 
+import './integration_test.js';
+
 import './model_test.js';
+
+import './view_test.js';
 
 import { start } from 'qunit/qunit/qunit.js';
 

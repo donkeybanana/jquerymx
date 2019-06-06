@@ -2,6 +2,7 @@
   "name": "jquerymx",
   "version": "4.0.0-dev",
   "dependencies": {
+    "ejs": "^2.6.1",
     "jquery": "^3.3.1",
     "qunit": "^2.8.0",
     "steal": "^2.2.1"

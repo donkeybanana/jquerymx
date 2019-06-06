@@ -920,3 +920,5 @@ $.each(
 );
 
 //go through helper funcs and convert
+
+export default $view;
