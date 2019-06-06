@@ -29,7 +29,7 @@ test('getCharElement', function(assert) {
     }
 
     for (var i = 0; i < res.length; i++) {
-      same(res[i], { start: 1, end: 5 }, types[i]);
+      assert.deepEqual(res[i], { start: 1, end: 5 }, types[i]);
     }
 
     done();

@@ -20,7 +20,10 @@ var convertType = function(type) {
   // A helper that uses range to abstract out getting the current start and endPos.
   getElementsSelection = function(el, win) {
     var current = $.Range.current(el).clone(),
-      entireElement = $.Range(el).select(el);
+      entireElement = $.Range(el).select(el),
+      startPos,
+      endPos;
+
     if (!current.overlaps(entireElement)) {
       return null;
     }
@@ -30,7 +33,7 @@ var convertType = function(type) {
       // we should move current ...
       current.move('START_TO_START', entireElement);
     } else {
-      fromElementToCurrent = entireElement.clone();
+      var fromElementToCurrent = entireElement.clone();
       fromElementToCurrent.move('END_TO_START', current);
       startPos = fromElementToCurrent.toString().length;
     }
