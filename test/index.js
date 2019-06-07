@@ -21,6 +21,7 @@ import './lang/object_test.js';
 import './integration_test.js';
 
 import './model_test.js';
+import './model/backup_test.js';
 
 import './view_test.js';
 import './view/ejs_test.js';
