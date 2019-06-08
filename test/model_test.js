@@ -73,7 +73,7 @@ test('findAll deferred', function(assert) {
           url: '/people',
           data: params,
           dataType: 'json person.models',
-          fixture: 'test/model/people.json'
+          fixture: 'test/model/fixtures/people.json'
         });
       }
     },
@@ -102,7 +102,7 @@ test('findOne deferred', function(assert) {
           url: '/people/5',
           data: params,
           dataType: 'json person.model',
-          fixture: 'test/model/person.json'
+          fixture: 'test/model/fixtures/person.json'
         });
       }
     },
@@ -316,10 +316,10 @@ test('auto methods', function(assert) {
   const School = $.Model.extend(
     'School',
     {
-      findAll: 'test/model/{type}.json',
-      findOne: 'test/model/{id}.json',
-      create: 'test/model/create.json',
-      update: 'POST test/model/test/update{id}.json'
+      findAll: 'test/model/fixtures/{type}.json',
+      findOne: 'test/model/fixtures/{id}.json',
+      create: 'test/model/fixtures/create.json',
+      update: 'POST test/model/fixtures/update{id}.json'
     },
     {}
   );
@@ -372,7 +372,7 @@ test('findAll string', function(assert) {
   $.Model.extend(
     'Test.Thing',
     {
-      findAll: 'test/model/findAll.json'
+      findAll: 'test/model/fixtures/findAll.json'
     },
     {}
   );
