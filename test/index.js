@@ -23,6 +23,7 @@ import './integration_test.js';
 import './model_test.js';
 import './model/associations_test.js';
 import './model/backup_test.js';
+import './model/list_test.js';
 import './model/validations_test.js';
 
 import './tie_test.js';
