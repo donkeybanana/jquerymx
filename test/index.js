@@ -25,6 +25,8 @@ import './model/associations_test.js';
 import './model/backup_test.js';
 import './model/validations_test.js';
 
+import './tie_test.js';
+
 import './view_test.js';
 import './view/ejs_test.js';
 import './view/tmpl_test.js';
