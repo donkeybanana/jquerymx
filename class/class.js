@@ -781,3 +781,5 @@ clss.callback = clss[STR_PROTOTYPE].callback /**
  * next function.
  * @return {Function} the callback function
  */ = clss[STR_PROTOTYPE].proxy = clss.proxy;
+
+export default clss;
