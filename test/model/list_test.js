@@ -176,11 +176,11 @@ test('events - add', function(assert) {
   setTimeout(() => done(), 500);
 });
 
-todo('events - update', function(assert) {
+test('events - updated', function(assert) {
   const done = assert.async();
   assert.expect(3);
   var list = new Person.List();
-  list.bind('update', function(ev, updated) {
+  list.bind('updated', function(ev, updated) {
     assert.ok(1, 'update called');
     assert.ok(person === updated, 'we get the person back');
     assert.equal(updated.name, 'Alex', 'got the right name');
