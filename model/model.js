@@ -1872,7 +1872,9 @@ $.fn.models = function(type) {
       kind =
         kind === undefined
           ? instance.constructor.List || null
-          : instance.constructor.List === kind ? kind : null;
+          : instance.constructor.List === kind
+            ? kind
+            : null;
       collection.push(instance);
     });
   });
@@ -1912,3 +1914,5 @@ $.fn.model = function(type) {
     return this.models.apply(this, arguments)[0];
   }
 };
+
+export default $.Model;

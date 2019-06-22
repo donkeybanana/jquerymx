@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 /**
  * @page jquerymx.lang Language Helpers
  * @parent jquerymx

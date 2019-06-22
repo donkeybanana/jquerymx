@@ -13,5 +13,8 @@
   "prettier": {
     "semi": true,
     "singleQuote": true
+  },
+  "devDependencies": {
+    "steal-tools": "^2.2.2"
   }
 }
