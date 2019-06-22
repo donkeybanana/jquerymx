@@ -1,6 +1,7 @@
 {
   "name": "jquerymx",
   "version": "4.0.0-dev",
+  "main": "index.js",
   "dependencies": {
     "ejs": "^2.6.1",
     "jquery": "^3.3.1",

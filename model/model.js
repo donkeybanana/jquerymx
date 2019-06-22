@@ -1053,11 +1053,11 @@ jQuery.Class(
           ? // if an array, return the array
             instancesRawData
           : // otherwise if a model list
-            ml
-            ? // get the raw objects from the list
-              instancesRawData.serialize()
-            : // get the object's data
-              instancesRawData.data,
+          ml
+          ? // get the raw objects from the list
+            instancesRawData.serialize()
+          : // get the object's data
+            instancesRawData.data,
         // the number of items
         length = raw ? raw.length : null,
         i = 0;
@@ -1872,7 +1872,9 @@ $.fn.models = function(type) {
       kind =
         kind === undefined
           ? instance.constructor.List || null
-          : instance.constructor.List === kind ? kind : null;
+          : instance.constructor.List === kind
+          ? kind
+          : null;
       collection.push(instance);
     });
   });
@@ -1912,3 +1914,5 @@ $.fn.model = function(type) {
     return this.models.apply(this, arguments)[0];
   }
 };
+
+export default $.Model;
