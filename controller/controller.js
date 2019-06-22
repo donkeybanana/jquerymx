@@ -634,9 +634,7 @@ $.Class(
       //want the raw element here
       element = (typeof element == 'string'
         ? $(element)
-        : element.jquery
-          ? element
-          : [element])[0];
+        : element.jquery ? element : [element])[0];
 
       //set element and className on element
       var pluginname = cls.pluginName || cls._fullName;
@@ -1117,5 +1115,3 @@ $.fn.extend({
     return this.controllers.apply(this, arguments)[0];
   }
 });
-
-export default $.Controller;
