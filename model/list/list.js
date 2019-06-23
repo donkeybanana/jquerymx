@@ -866,3 +866,5 @@ each(
     };
   }
 );
+
+export default $.Model.List;
