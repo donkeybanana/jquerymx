@@ -1,5 +1,5 @@
 import '../view.js';
-import '../../lang/string/rsplit/rsplit.js';
+import rsplit from '../../lang/string/rsplit/rsplit.js';
 import ejs from 'ejs';
 
 // HELPER METHODS ==============
@@ -11,7 +11,6 @@ var myEval = function(script) {
   // chop = function( string ) {
   //	return string.substr(0, string.length - 1);
   //},
-  rSplit = $.String.rsplit,
   extend = $.extend,
   isArray = $.isArray,
   // regular expressions for caching
@@ -330,7 +329,7 @@ extend(EJS, {
 // block - function(token, scanner), called with each token
 var scan = function(scanner, source, block) {
     // split on /\n/ to have new lines on their own line.
-    var source_split = rSplit(source, nReg),
+    var source_split = rsplit(source, nReg),
       i = 0;
     for (; i < source_split.length; i++) {
       scanline(scanner, source_split[i], block);
@@ -338,7 +337,7 @@ var scan = function(scanner, source, block) {
   },
   scanline = function(scanner, line, block) {
     scanner.lines++;
-    var line_split = rSplit(line, scanner.splitter),
+    var line_split = rsplit(line, scanner.splitter),
       token;
     for (var i = 0; i < line_split.length; i++) {
       token = line_split[i];
