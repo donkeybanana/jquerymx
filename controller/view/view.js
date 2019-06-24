@@ -1,5 +1,6 @@
 import '../controller.js';
 import '../../view/view.js';
+import { underscore } from '../../lang/string/string.js';
 
 const classParts = Class =>
   Class.fullName.split('.Controllers.').map(part => part.split('.'));
@@ -17,7 +18,7 @@ const addPrefix = (view, Class) => {
     return view;
   }
 
-  return jQuery.String.underscore(
+  return underscore(
     classParts(Class)[1]
       .concat(view)
       .join('/')
@@ -26,7 +27,7 @@ const addPrefix = (view, Class) => {
 
 const addRoot = (view, Class) =>
   '//' +
-  jQuery.String.underscore(
+  underscore(
     classParts(Class)[0]
       .concat('views')
       .concat(view)
@@ -37,7 +38,7 @@ const hasControllers = Class =>
   Class.fullName.split('.').indexOf('Controllers') >= 0;
 
 jQuery.Controller.getFolder = function() {
-  return jQuery.String.underscore(this.fullName.replace(/\./g, '/')).replace(
+  return underscore(this.fullName.replace(/\./g, '/')).replace(
     '/Controllers',
     ''
   );
@@ -57,7 +58,7 @@ jQuery.Controller._calculatePosition = function(Class, view, action_name) {
 var calculateHelpers = function(myhelpers) {
   var helpers = {};
   if (myhelpers) {
-    if (jQuery.isArray(myhelpers)) {
+    if (Array.isArray(myhelpers)) {
       for (var h = 0; h < myhelpers.length; h++) {
         jQuery.extend(helpers, myhelpers[h]);
       }

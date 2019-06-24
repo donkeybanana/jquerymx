@@ -2,7 +2,7 @@ import '../model.js';
 
 const getEvents = context => $._data(context, 'events');
 var getArgs = function(args) {
-    if (args[0] && $.isArray(args[0])) {
+    if (args[0] && Array.isArray(args[0])) {
       return args[0];
     } else if (args[0] instanceof $.Model.List) {
       return $.makeArray(args[0]);

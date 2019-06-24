@@ -5,12 +5,12 @@
  * This document is licensed as free software under the terms of the
  * MIT License: http://www.opensource.org/licenses/mit-license.php
  *
- * Brantley Harris wrote this plugin. It is based somewhat on the JSON.org 
+ * Brantley Harris wrote this plugin. It is based somewhat on the JSON.org
  * website's http://www.json.org/json2.js, which proclaims:
  * "NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.", a sentiment that
  * I uphold.
  *
- * It is also influenced heavily by MochiKit's serializeJSON, which is 
+ * It is also influenced heavily by MochiKit's serializeJSON, which is
  * copyrighted 2005 by Bob Ippolito.
  */
 //
@@ -122,7 +122,7 @@ $.toJSON = function(o, replacer, space, recurse) {
 
     var pairs = [],
       proplist;
-    if ($.isArray(replacer)) {
+    if (Array.isArray(replacer)) {
       proplist = $.map(replacer, function(v) {
         return typeof v == 'string' || typeof v == 'number' ? v + '' : null;
       });

@@ -1,5 +1,5 @@
 import '../class/class.js';
-import '../lang/string/string.js';
+import { sub, underscore } from '../lang/string/string.js';
 import '../event/destroyed/destroyed.js';
 
 // ------- HELPER FUNCTIONS  ------
@@ -26,10 +26,8 @@ var bind = function(el, ev, callback) {
     };
   },
   makeArray = $.makeArray,
-  isArray = $.isArray,
   isFunction = $.isFunction,
   extend = $.extend,
-  Str = $.String,
   each = $.each,
   STR_PROTOTYPE = 'prototype',
   STR_CONSTRUCTOR = 'constructor',
@@ -67,7 +65,7 @@ var bind = function(el, ev, callback) {
   controllersReg = /_?controllers?/gi,
   //used to remove the controller from the name
   underscoreAndRemoveController = function(className) {
-    return Str.underscore(
+    return underscore(
       className
         .replace('jQuery.', '')
         .replace(dotsReg, '_')
@@ -407,7 +405,7 @@ $.Class(
 
       // make sure listensTo is an array
       //!steal-remove-start
-      if (!isArray(this.listensTo)) {
+      if (!Array.isArray(this.listensTo)) {
         throw 'listensTo is not an array in ' + this.fullName;
       }
       //!steal-remove-end
@@ -478,10 +476,10 @@ $.Class(
       // If we have options, run sub to replace templates "{}" with a value from the options
       // or the window
       var convertedName = options
-          ? Str.sub(methodName, [options, window])
+          ? sub(methodName, [options, window])
           : methodName,
         // If a "{}" resolves to an object, convertedName will be an array
-        arr = isArray(convertedName),
+        arr = Array.isArray(convertedName),
         // get the parts of the function = [convertedName, delegatePart, eventPart]
         parts = (arr ? convertedName[1] : convertedName).match(breaker),
         event = parts[2],

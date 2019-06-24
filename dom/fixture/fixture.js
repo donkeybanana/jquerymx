@@ -1,6 +1,6 @@
 import '../dom.js';
 import '../../lang/object/object.js';
-import '../../lang/string/string.js';
+import { regs } from '../../lang/string/string.js';
 
 // the pre-filter needs to re-route the url
 $.ajaxPrefilter(function(settings, originalOptions, jqXHR) {
@@ -83,7 +83,7 @@ $.ajaxTransport('fixture', function(s, original) {
         var response = s.fixture(original, s, headers);
 
         // normalize the fixture data into a response
-        if (!$.isArray(response)) {
+        if (!Array.isArray(response)) {
           var tmp = [{}];
           tmp[0][next] = response;
           response = tmp;
@@ -399,7 +399,7 @@ var $fixture = ($.fixture = function(settings, fixture) {
     overwrites.push(settings);
   }
 });
-var replacer = $.String._regs.replacer;
+var replacer = regs.replacer;
 
 $.extend($.fixture, {
   // given ajax settings, find an overwrite

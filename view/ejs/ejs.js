@@ -12,7 +12,6 @@ var myEval = function(script) {
   //	return string.substr(0, string.length - 1);
   //},
   extend = $.extend,
-  isArray = $.isArray,
   // regular expressions for caching
   returnReg = /\r\n/g,
   retReg = /\r/g,
@@ -275,7 +274,7 @@ extend(EJS, {
       (typeof input == 'function' && input) ||
       // of it its an array, make a function that calls hookup or the function
       // on each item in the array
-      (isArray(input) &&
+      (Array.isArray(input) &&
         function(el, id) {
           for (var i = 0; i < input.length; i++) {
             input[i].hookup ? input[i].hookup(el, id) : input[i](el, id);

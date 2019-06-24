@@ -1,8 +1,7 @@
 import '../../class/class.js';
 
 // Alias helpful methods from jQuery
-var isArray = $.isArray,
-  isObject = function(obj) {
+var isObject = function(obj) {
     return typeof obj === 'object' && obj !== null && obj;
   },
   makeArray = $.makeArray,
@@ -17,7 +16,7 @@ var isArray = $.isArray,
       // we have an observe already
       // make sure it is not listening to this already
       unhookup([val], parent._namespace);
-    } else if (isArray(val)) {
+    } else if (Array.isArray(val)) {
       val = new $.Observe.List(val);
     } else {
       val = new $.Observe(val);
@@ -368,7 +367,7 @@ $.Class.extend(
      */
     removeAttr: function(attr) {
       // convert the attr into parts (if nested)
-      var parts = isArray(attr) ? attr : attr.split('.'),
+      var parts = Array.isArray(attr) ? attr : attr.split('.'),
         // the actual property to remove
         prop = parts.shift(),
         // the current value
@@ -387,7 +386,7 @@ $.Class.extend(
     },
     // reads a property from the object
     _get: function(attr) {
-      var parts = isArray(attr) ? attr : ('' + attr).split('.'),
+      var parts = Array.isArray(attr) ? attr : ('' + attr).split('.'),
         current = this.__get(parts.shift());
       if (parts.length) {
         return current ? current._get(parts) : undefined;
@@ -406,7 +405,7 @@ $.Class.extend(
     // description - an object with converters / serializers / defaults / getterSetters?
     _set: function(attr, value) {
       // convert attr to attr parts (if it isn't already)
-      var parts = isArray(attr) ? attr : ('' + attr).split('.'),
+      var parts = Array.isArray(attr) ? attr : ('' + attr).split('.'),
         // the immediate prop we are setting
         prop = parts.shift(),
         // its current value
@@ -847,7 +846,7 @@ var list = jQuery.Observe.extend(
   // create push, pop, shift, and unshift
   // converts to an array of arguments
   getArgs = function(args) {
-    if (args[0] && $.isArray(args[0])) {
+    if (args[0] && Array.isArray(args[0])) {
       return args[0];
     } else {
       return makeArray(args);
@@ -1010,7 +1009,7 @@ list.prototype.indexOf =
  * @class $.O
  */
 $.O = function(data, options) {
-  if (isArray(data) || data instanceof $.Observe.List) {
+  if (Array.isArray(data) || data instanceof $.Observe.List) {
     return new $.Observe.List(data, options);
   } else {
     return new $.Observe(data, options);

@@ -1,16 +1,18 @@
 /*global OpenAjax: true */
 
+import $ from 'jquery';
 import '../class/class.js';
-import '../lang/string/string.js';
+import {
+  capitalize,
+  classize,
+  getObject,
+  underscore,
+  sub
+} from '../lang/string/string.js';
 
 // Common helper methods taken from jQuery (or other places)
 // Keep here so someday can be abstracted
-var $String = $.String,
-  getObject = $String.getObject,
-  underscore = $String.underscore,
-  classize = $String.classize,
-  isArray = $.isArray,
-  makeArray = $.makeArray,
+var makeArray = $.makeArray,
   extend = $.extend,
   each = $.each,
   trigger = function(obj, event, args) {
@@ -41,12 +43,12 @@ var $String = $.String,
 
     // if we are a non-array object, copy to a new attrs
     ajaxOb.data =
-      typeof data == 'object' && !isArray(data)
+      typeof data == 'object' && !Array.isArray(data)
         ? extend(ajaxOb.data || {}, data)
         : data;
 
     // get the url with any templated values filled out
-    ajaxOb.url = $String.sub(ajaxOb.url, ajaxOb.data, true);
+    ajaxOb.url = sub(ajaxOb.url, ajaxOb.data, true);
 
     return $.ajax(
       extend(
@@ -93,7 +95,7 @@ var $String = $.String,
     attrs = attrs || {};
     var identity = model.id;
     if (attrs[identity] && attrs[identity] !== id) {
-      attrs['new' + $String.capitalize(id)] = attrs[identity];
+      attrs['new' + capitalize(id)] = attrs[identity];
       delete attrs[identity];
     }
     attrs[identity] = id;
@@ -1043,7 +1045,7 @@ jQuery.Class(
       // get the list type
       var res = getList(this.List),
         // did we get an array
-        arr = isArray(instancesRawData),
+        arr = Array.isArray(instancesRawData),
         // cache model list
         ML = $.Model.List,
         // did we get a model list?
@@ -1274,7 +1276,7 @@ jQuery.Class(
     errors: function(attrs) {
       // convert attrs to an array
       if (attrs) {
-        attrs = isArray(attrs) ? attrs : makeArray(arguments);
+        attrs = Array.isArray(attrs) ? attrs : makeArray(arguments);
       }
       var errors = {},
         self = this,

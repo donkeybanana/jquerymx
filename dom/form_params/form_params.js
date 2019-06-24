@@ -28,7 +28,7 @@ var keyBreaker = /[^\[\]]+/g,
     } else {
       // Handle same name case, as well as "last checkbox checked"
       // case
-      if (name in seen && type != 'radio' && !$.isArray(data[name])) {
+      if (name in seen && type != 'radio' && !Array.isArray(data[name])) {
         if (name in data) {
           data[name] = [data[name]];
         } else {
@@ -119,7 +119,7 @@ $.fn.extend({
         } else if ($this.is(':checkbox')) {
           // Convert single value to an array to reduce
           // complexity
-          value = $.isArray(value) ? value : [value];
+          value = Array.isArray(value) ? value : [value];
           if ($.inArray($this.val(), value) > -1) {
             $this.attr('checked', true);
           }

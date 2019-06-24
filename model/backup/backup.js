@@ -1,18 +1,17 @@
 import '../model.js';
 
-var isArray = $.isArray,
-  propCount = function(obj) {
+var propCount = function(obj) {
     var count = 0;
     for (var prop in obj) count++;
     return count;
   },
   same = function(a, b, deep) {
     var aType = typeof a,
-      aArray = isArray(a);
+      aArray = Array.isArray(a);
     if (deep === -1) {
       return aType === 'object' || a === b;
     }
-    if (aType !== typeof b || aArray !== isArray(b)) {
+    if (aType !== typeof b || aArray !== Array.isArray(b)) {
       return false;
     }
     if (a === b) {

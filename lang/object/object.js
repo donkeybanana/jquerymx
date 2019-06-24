@@ -1,9 +1,8 @@
 import 'jquery';
 
-var isArray = $.isArray,
-  // essentially returns an object that has all the must have comparisons ...
-  // must haves, do not return true when provided undefined
-  cleanSet = function(obj, compares) {
+// essentially returns an object that has all the must have comparisons ...
+// must haves, do not return true when provided undefined
+var cleanSet = function(obj, compares) {
     var copy = $.extend({}, obj);
     for (var prop in copy) {
       var compare =
@@ -110,7 +109,7 @@ $.Object = {};
  */
 var same = ($.Object.same = function(a, b, compares, aParent, bParent, deep) {
   var aType = typeof a,
-    aArray = isArray(a),
+    aArray = Array.isArray(a),
     comparesType = typeof compares,
     compare;
 
@@ -126,7 +125,7 @@ var same = ($.Object.same = function(a, b, compares, aParent, bParent, deep) {
   if (deep === -1) {
     return aType === 'object' || a === b;
   }
-  if (aType !== typeof b || aArray !== isArray(b)) {
+  if (aType !== typeof b || aArray !== Array.isArray(b)) {
     return false;
   }
   if (a === b) {

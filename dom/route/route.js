@@ -1,6 +1,6 @@
 import '../../lang/observe/observe.js';
 import '../../event/hashchange/hashchange.js';
-import '../../lang/string/deparam/deparam.js';
+import deparam from '../../lang/string/deparam/deparam.js';
 
 // Helper methods used for matching routes.
 var // RegEx used to match route variables of the type ':name'.
@@ -323,7 +323,7 @@ extend($.route, {
         // If there is a remainder and it contains a &amp;key=value list deparam it.
         obj =
           remainder && paramsMatcher.test(remainder)
-            ? $.String.deparam(remainder.slice(1))
+            ? deparam(remainder.slice(1))
             : {};
 
       // Add the default values for this route
@@ -341,7 +341,7 @@ extend($.route, {
     if (url.charAt(0) !== '&') {
       url = '&' + url;
     }
-    return paramsMatcher.test(url) ? $.String.deparam(url.slice(1)) : {};
+    return paramsMatcher.test(url) ? deparam(url.slice(1)) : {};
   },
   /**
    * @hide

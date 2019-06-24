@@ -1,6 +1,6 @@
 import '../../dom/form_params/form_params.js';
 import '../../view/micro/micro.js';
-import {assert, module, test } from 'qunit/qunit/qunit.js';
+import { assert, module, test } from 'qunit/qunit/qunit.js';
 
 module('dom/form_params', {
   beforeEach: () =>
@@ -36,7 +36,7 @@ test('with a form', function() {
   );
 
   assert.ok(
-    $.isArray(formParams.lastOneChecked),
+    Array.isArray(formParams.lastOneChecked),
     'Type of checkbox with last option checked is array'
   );
   assert.equal(

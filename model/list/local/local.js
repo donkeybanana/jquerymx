@@ -1,4 +1,8 @@
-steal('jquery/dom/cookie','jquery/model/list').then(function($){
+import $ from 'jquery';
+import '../../../dom/cookie/cookie.js';
+import '../list.js';
+import { getObject } from '../../../lang/string/string.js';
+
 /**
  * @class jQuery.Model.List.Local
  * @plugin jquery/model/list/local
@@ -7,36 +11,32 @@ steal('jquery/dom/cookie','jquery/model/list').then(function($){
  * Works exactly the same as [jQuery.Model.List.Cookie] except uses
  * a local store instead of cookies.
  */
-$.Model.List("jQuery.Model.List.Local",
-{
-	retrieve : function(name){
-		// each also needs what they are referencd by ?
-		var props = window.localStorage[ name ] || "[]",
-			instances = [],
-			Class = props.type ? $.String.getObject(props.type) :  null;
-		for(var i =0; i < props.ids.length;i++){
-			var identity = props.ids[i],
-				instanceData = window.localStorage[ identity ];
-			instances.push( new Class(instanceData) )
-		}
-		this.push.apply(this,instances);
-		return this;
-	},
-	store : function(name){
-		//  go through and listen to instance updating
-		var ids = [], days = this.days;
-		this.each(function(i, inst){
-			window.localStorage[inst.identity()] = inst.attrs();
-			ids.push(inst.identity());
-		});
-		window.localStorage[name] = {
-			type: this[0] && this[0].constructor.fullName,
-			ids: ids
-		};
-		return this;
-	}
-	
+export default $.Model.List('jQuery.Model.List.Local', {
+  retrieve: function(name) {
+    // each also needs what they are referencd by ?
+    var props = window.localStorage[name] || '[]',
+      instances = [],
+      Class = props.type ? getObject(props.type) : null;
+    for (var i = 0; i < props.ids.length; i++) {
+      var identity = props.ids[i],
+        instanceData = window.localStorage[identity];
+      instances.push(new Class(instanceData));
+    }
+    this.push.apply(this, instances);
+    return this;
+  },
+  store: function(name) {
+    //  go through and listen to instance updating
+    var ids = [],
+      days = this.days;
+    this.each(function(i, inst) {
+      window.localStorage[inst.identity()] = inst.attrs();
+      ids.push(inst.identity());
+    });
+    window.localStorage[name] = {
+      type: this[0] && this[0].constructor.fullName,
+      ids: ids
+    };
+    return this;
+  }
 });
-	
-})
-

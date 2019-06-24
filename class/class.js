@@ -4,7 +4,7 @@
 // It provides class level inheritance and callbacks.
 
 import 'jquery';
-import '../lang/string/string.js';
+import { getObject } from '../lang/string/string.js';
 
 // =============== HELPERS =================
 
@@ -12,9 +12,7 @@ import '../lang/string/string.js';
 var initializing = false,
   makeArray = $.makeArray,
   isFunction = $.isFunction,
-  isArray = $.isArray,
   extend = $.extend,
-  getObject = $.String.getObject,
   concatArgs = function(arr, args) {
     return arr.concat(makeArray(args));
   },
@@ -421,7 +419,7 @@ extend(clss, {
     funcs = args.shift();
 
     // if there is only one function, make funcs into an array
-    if (!isArray(funcs)) {
+    if (!Array.isArray(funcs)) {
       funcs = [funcs];
     }
 
@@ -465,7 +463,7 @@ extend(clss, {
 
         // pass the result to the next function (if there is a next function)
         if (f < length - 1) {
-          cur = !isArray(cur) || cur._use_call ? [cur] : cur;
+          cur = !Array.isArray(cur) || cur._use_call ? [cur] : cur;
         }
       }
       return cur;
@@ -493,7 +491,7 @@ extend(clss, {
     }
     // call init if there is an init, if setup returned args, use those as the arguments
     if (inst.init) {
-      inst.init.apply(inst, isArray(args) ? args : arguments);
+      inst.init.apply(inst, Array.isArray(args) ? args : arguments);
     }
     return inst;
   },
@@ -770,7 +768,7 @@ extend(clss, {
   }
 });
 
-clss.callback = clss[STR_PROTOTYPE].callback /**
+clss.callback = clss[STR_PROTOTYPE].callback = /**
  * @function proxy
  * Returns a method that sets 'this' to the current instance.  This does the same thing as
  * and is described better in [jQuery.Class.static.proxy].
@@ -780,6 +778,6 @@ clss.callback = clss[STR_PROTOTYPE].callback /**
  * If it is an array, it will call each function in order and pass the return value of the prior function to the
  * next function.
  * @return {Function} the callback function
- */ = clss[STR_PROTOTYPE].proxy = clss.proxy;
+ */ clss[STR_PROTOTYPE].proxy = clss.proxy;
 
 export default clss;

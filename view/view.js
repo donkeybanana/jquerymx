@@ -341,7 +341,7 @@ var $view = ($.View = function(view, data, helpers, callback) {
   // this is for Models and $.ajax that resolve to array (with success and such)
   // returns the useful, content part
   usefulPart = function(resolved) {
-    return $.isArray(resolved) &&
+    return Array.isArray(resolved) &&
       resolved.length === 3 &&
       resolved[1] === 'success'
       ? resolved[0]
@@ -405,13 +405,12 @@ $.ajaxTransport('view', function(options, orig) {
   // you should only be using // if you are using steal
   if (url.match(/^\/\//)) {
     var sub = url.substr(2);
-    url = (
+    url =
       typeof steal === 'undefined' ||
       typeof steal.root === 'undefined' ||
       typeof steal.root.mapJoin
-    )
-      ? (url = '/' + sub)
-      : steal.root.mapJoin(sub) + '';
+        ? (url = '/' + sub)
+        : steal.root.mapJoin(sub) + '';
   }
 
   //set the template engine type
