@@ -326,725 +326,444 @@ var bind = function(el, ev, callback) {
  * These methods let you call one controller from another controller.
  *
  */
-$.Class(
-  'jQuery.Controller',
+
+class $Controller {
+  static fullName = '$Controller';
+  static shortName = this.fullName;
+  static _fullName = '$_controller';
+  static _shortName = this._fullName;
+
+  static processors = processors;
+  static listensTo = [];
+  static defaults = {};
+  static actions = {};
+
+  static isAction(name) {
+    return actionMatcher.test(name);
+  }
+
+  static hookup() {
+    return new $Controller(el);
+  }
+
+  get element() {
+    return this.__element;
+  }
+
+  set element(el) {
+    if (typeof el === 'string') {
+      this.__element = $(el);
+    } else {
+      this.__element = el;
+    }
+  }
+
+  constructor(el, opts) {
+    this.element = $(el).addClass(this._fullName);
+    (data(this.element) || data(this.element, {}))[this._fullName] = this;
+
+    this.options = opts;
+    this.options = extend(extend(true, {}, this.constructor.defaults), options);
+
+    this.init();
+  }
+
+  find(selector) {
+    return this.element.find(selector);
+  }
+
+  destroy() {
+    if (this._destroyed) {
+      throw this.shortName + ' controller already deleted';
+    }
+
+    this._destroyed = true;
+
+    this.element.removeClass(this._fullName);
+
+    this._unbind();
+
+    delete this._actions;
+    delete this.element.data('controllers')[this.fullName];
+
+    this.element = null;
+  }
+}
+
+const $static = {
   /**
-   * @Static
+   * @hide
+   * This takes a method name and the options passed to a controller
+   * and tries to return the data necessary to pass to a processor
+   * (something that binds things).
+   *
+   * For performance reasons, this called twice.  First, it is called when
+   * the Controller class is created.  If the methodName is templated
+   * like : "{window} foo", it returns null.  If it is not templated
+   * it returns event binding data.
+   *
+   * The resulting data is added to this.actions.
+   *
+   * When a controller instance is created, _action is called again, but only
+   * on templated actions.
+   *
+   * @param {Object} methodName the method that will be bound
+   * @param {Object} [options] first param merged with class default options
+   * @return {Object} null or the processor and pre-split parts.
+   * The processor is what does the binding/subscribing.
    */
-  {
+  _action: function(methodName, options) {
+    // reset the test index
+    parameterReplacer.lastIndex = 0;
+
+    //if we don't have options (a controller instance), we'll run this later
+    if (!options && parameterReplacer.test(methodName)) {
+      return null;
+    }
+    // If we have options, run sub to replace templates "{}" with a value from the options
+    // or the window
+    var convertedName = options
+        ? Str.sub(methodName, [options, window])
+        : methodName,
+      // If a "{}" resolves to an object, convertedName will be an array
+      arr = isArray(convertedName),
+      // get the parts of the function = [convertedName, delegatePart, eventPart]
+      parts = (arr ? convertedName[1] : convertedName).match(breaker),
+      event = parts[2],
+      processor = processors[event] || basicProcessor;
+    return {
+      processor: processor,
+      parts: parts,
+      delegate: arr ? convertedName[0] : undefined
+    };
+  }
+};
+
+const $proto = {
+  setup: function(element, options) {
     /**
-     * Does 2 things:
-     *
-     *   - Creates a jQuery helper for this controller.</li>
-     *   - Calculates and caches which functions listen for events.</li>
-     *
-     * ### jQuery Helper Naming Examples
-     *
-     *
-     *     "TaskController" -> $().task_controller()
-     *     "Controllers.Task" -> $().controllers_task()
-     *
-     */
-    setup: function() {
-      // Allow contollers to inherit "defaults" from superclasses as it done in $.Class
-      this._super.apply(this, arguments);
-
-      // if you didn't provide a name, or are controller, don't do anything
-      if (!this.shortName || this.fullName == 'jQuery.Controller') {
-        return;
-      }
-      // cache the underscored names
-      this._fullName = underscoreAndRemoveController(this.fullName);
-      this._shortName = underscoreAndRemoveController(this.shortName);
-
-      var controller = this,
-        /**
-         * @attribute pluginName
-         * Setting the <code>pluginName</code> property allows you
-         * to change the jQuery plugin helper name from its
-         * default value.
-         *
-         *     $.Controller.extend("Mxui.Layout.Fill",{
-         *       pluginName: "fillWith"
-         *     },{});
-         *
-         *     $("#foo").fillWith();
-         */
-        pluginname = this.pluginName || this._fullName,
-        funcName,
-        forLint;
-
-      // create jQuery plugin
-      if (!$.fn[pluginname]) {
-        $.fn[pluginname] = function(options) {
-          var args = makeArray(arguments),
-            //if the arg is a method on this controller
-            isMethod =
-              typeof options == 'string' &&
-              isFunction(controller[STR_PROTOTYPE][options]),
-            meth = args[0];
-          return this.each(function() {
-            //check if created
-            var controllers = data(this),
-              //plugin is actually the controller instance
-              plugin = controllers && controllers[pluginname];
-
-            if (plugin) {
-              if (isMethod) {
-                // call a method on the controller with the remaining args
-                plugin[meth].apply(plugin, args.slice(1));
-              } else {
-                // call the plugin's update method
-                plugin.update.apply(plugin, args);
-              }
-            } else {
-              //create a new controller instance
-              controller.newInstance.apply(controller, [this].concat(args));
-            }
-          });
-        };
-      }
-
-      // make sure listensTo is an array
-      //!steal-remove-start
-      if (!isArray(this.listensTo)) {
-        throw 'listensTo is not an array in ' + this.fullName;
-      }
-      //!steal-remove-end
-      // calculate and cache actions
-      this.actions = {};
-
-      for (funcName in this[STR_PROTOTYPE]) {
-        if (
-          funcName == 'constructor' ||
-          !isFunction(this[STR_PROTOTYPE][funcName])
-        ) {
-          continue;
-        }
-        if (this._isAction(funcName)) {
-          this.actions[funcName] = this._action(funcName);
-        }
-      }
-    },
-    hookup: function(el) {
-      return new this(el);
-    },
-
-    /**
+     * @attribute called
+     * String name of current function being called on controller instance.  This is
+     * used for picking the right view in render.
      * @hide
-     * @param {String} methodName a prototype function
-     * @return {Boolean} truthy if an action or not
      */
-    _isAction: function(methodName) {
-      if (actionMatcher.test(methodName)) {
-        return true;
-      } else {
-        return (
-          $.inArray(methodName, this.listensTo) > -1 ||
-          $.event.special[methodName] ||
-          processors[methodName]
-        );
-      }
-    },
-    /**
-     * @hide
-     * This takes a method name and the options passed to a controller
-     * and tries to return the data necessary to pass to a processor
-     * (something that binds things).
-     *
-     * For performance reasons, this called twice.  First, it is called when
-     * the Controller class is created.  If the methodName is templated
-     * like : "{window} foo", it returns null.  If it is not templated
-     * it returns event binding data.
-     *
-     * The resulting data is added to this.actions.
-     *
-     * When a controller instance is created, _action is called again, but only
-     * on templated actions.
-     *
-     * @param {Object} methodName the method that will be bound
-     * @param {Object} [options] first param merged with class default options
-     * @return {Object} null or the processor and pre-split parts.
-     * The processor is what does the binding/subscribing.
-     */
-    _action: function(methodName, options) {
-      // reset the test index
-      parameterReplacer.lastIndex = 0;
+    this.called = 'init';
 
-      //if we don't have options (a controller instance), we'll run this later
-      if (!options && parameterReplacer.test(methodName)) {
-        return null;
-      }
-      // If we have options, run sub to replace templates "{}" with a value from the options
-      // or the window
-      var convertedName = options
-          ? Str.sub(methodName, [options, window])
-          : methodName,
-        // If a "{}" resolves to an object, convertedName will be an array
-        arr = isArray(convertedName),
-        // get the parts of the function = [convertedName, delegatePart, eventPart]
-        parts = (arr ? convertedName[1] : convertedName).match(breaker),
-        event = parts[2],
-        processor = processors[event] || basicProcessor;
-      return {
-        processor: processor,
-        parts: parts,
-        delegate: arr ? convertedName[0] : undefined
-      };
-    },
+    // bind all event handlers
+    this.bind();
+
     /**
-     * @attribute processors
-     * An object of {eventName : function} pairs that Controller uses to hook up events
-     * auto-magically.  A processor function looks like:
+     * @attribute element
+     * The controller instance's delegated element. This
+     * is set by [jQuery.Controller.prototype.setup setup]. It
+     * is a jQuery wrapped element.
      *
-     *     jQuery.Controller.processors.
-     *       myprocessor = function( el, event, selector, cb, controller ) {
-     *          //el - the controller's element
-     *          //event - the event (myprocessor)
-     *          //selector - the left of the selector
-     *          //cb - the function to call
-     *          //controller - the binding controller
-     *       };
+     * For example, if I add MyWidget to a '#myelement' element like:
      *
-     * This would bind anything like: "foo~3242 myprocessor".
-     *
-     * The processor must return a function that when called,
-     * unbinds the event handler.
-     *
-     * Controller already has processors for the following events:
-     *
-     *   - change
-     *   - click
-     *   - contextmenu
-     *   - dblclick
-     *   - focusin
-     *   - focusout
-     *   - keydown
-     *   - keyup
-     *   - keypress
-     *   - mousedown
-     *   - mouseenter
-     *   - mouseleave
-     *   - mousemove
-     *   - mouseout
-     *   - mouseover
-     *   - mouseup
-     *   - reset
-     *   - resize
-     *   - scroll
-     *   - select
-     *   - submit
-     *
-     * Listen to events on the document or window
-     * with templated event handlers:
-     *
-     *
-     *     $.Controller.extend('Sized',{
-     *       "{window} resize" : function(){
-     *         this.element.width(this.element.parent().width() / 2);
-     *       }
-     *     });
-     *
-     *     $('.foo').sized();
-     */
-    processors: {},
-    /**
-     * @attribute listensTo
-     * An array of special events this controller
-     * listens too.  You only need to add event names that
-     * are whole words (ie have no special characters).
-     *
-     *     $.Controller.extend('TabPanel',{
-     *       listensTo : ['show']
-     *     },{
-     *       'show' : function(){
-     *         this.element.show();
+     *     $.Controller.extend("MyWidget",{
+     *       init : function(){
+     *         this.element.css("color","red")
      *       }
      *     })
      *
-     *     $('.foo').tab_panel().trigger("show");
+     *     $("#myelement").my_widget()
      *
-     */
-    listensTo: [],
-    /**
-     * @attribute defaults
-     * A object of name-value pairs that act as default values for a controller's
-     * [jQuery.Controller.prototype.options options].
+     * MyWidget will turn #myelement's font color red.
      *
-     *     $.Controller.extend("Message",
-     *     {
-     *       defaults : {
-     *         message : "Hello World"
-     *       }
-     *     },{
+     * ## Using a different element.
+     *
+     * Sometimes, you want a different element to be this.element.  A
+     * very common example is making progressively enhanced form widgets.
+     *
+     * To change this.element, overwrite Controller's setup method like:
+     *
+     *     $.Controller.extend("Combobox",{
+     *       setup : function(el, options){
+     *          this.oldElement = $(el);
+     *          var newEl = $('<div/>');
+     *          this.oldElement.wrap(newEl);
+     *          this._super(newEl, options);
+     *       },
      *       init : function(){
-     *         this.element.text(this.options.message);
-     *       }
-     *     })
-     *
-     *     $("#el1").message(); //writes "Hello World"
-     *     $("#el12").message({message: "hi"}); //writes hi
-     *
-     * In [jQuery.Controller.prototype.setup setup] the options passed to the controller
-     * are merged with defaults.  This is not a deep merge.
-     */
-    defaults: {}
-  },
-  /**
-   * @Prototype
-   */
-  {
-    /**
-     * Setup is where most of controller's magic happens.  It does the following:
-     *
-     * ### 1. Sets this.element
-     *
-     * The first parameter passed to new Controller(el, options) is expected to be
-     * an element.  This gets converted to a jQuery wrapped element and set as
-     * [jQuery.Controller.prototype.element this.element].
-     *
-     * ### 2. Adds the controller's name to the element's className.
-     *
-     * Controller adds it's plugin name to the element's className for easier
-     * debugging.  For example, if your Controller is named "Foo.Bar", it adds
-     * "foo_bar" to the className.
-     *
-     * ### 3. Saves the controller in $.data
-     *
-     * A reference to the controller instance is saved in $.data.  You can find
-     * instances of "Foo.Bar" like:
-     *
-     *     $("#el").data("controllers")['foo_bar'].
-     *
-     * ### Binds event handlers
-     *
-     * Setup does the event binding described in [jquery.controller.listening Listening To Events].
-     *
-     * @param {HTMLElement} element the element this instance operates on.
-     * @param {Object} [options] option values for the controller.  These get added to
-     * this.options and merged with [jQuery.Controller.static.defaults defaults].
-     * @return {Array} return an array if you wan to change what init is called with. By
-     * default it is called with the element and options passed to the controller.
-     */
-    setup: function(element, options) {
-      var funcName,
-        ready,
-        cls = this[STR_CONSTRUCTOR];
-
-      //want the raw element here
-      element = (typeof element == 'string'
-        ? $(element)
-        : element.jquery
-        ? element
-        : [element])[0];
-
-      //set element and className on element
-      var pluginname = cls.pluginName || cls._fullName;
-
-      //set element and className on element
-      this.element = $(element).addClass(pluginname);
-
-      //set in data
-      (data(element) || data(element, {}))[pluginname] = this;
-
-      /**
-       * @attribute options
-       *
-       * Options are used to configure an controller.  They are
-       * the 2nd argument
-       * passed to a controller (or the first argument passed to the
-       * [jquery.controller.plugin controller's jQuery plugin]).
-       *
-       * For example:
-       *
-       *     $.Controller.extend('Hello')
-       *
-       *     var h1 = new Hello($('#content1'), {message: 'World'} );
-       *     equal( h1.options.message , "World" )
-       *
-       *     var h2 = $('#content2').hello({message: 'There'})
-       *                            .controller();
-       *     equal( h2.options.message , "There" )
-       *
-       * Options are merged with [jQuery.Controller.static.defaults defaults] in
-       * [jQuery.Controller.prototype.setup setup].
-       *
-       * For example:
-       *
-       *     $.Controller.extend("Tabs",
-       *     {
-       *        defaults : {
-       *          activeClass: "ui-active-state"
-       *        }
-       *     },
-       *     {
-       *        init : function(){
-       *          this.element.addClass(this.options.activeClass);
-       *        }
-       *     })
-       *
-       *     $("#tabs1").tabs()                         // adds 'ui-active-state'
-       *     $("#tabs2").tabs({activeClass : 'active'}) // adds 'active'
-       *
-       * Options are typically updated by calling
-       * [jQuery.Controller.prototype.update update];
-       *
-       */
-      this.options = extend(extend(true, {}, cls.defaults), options);
-
-      /**
-       * @attribute called
-       * String name of current function being called on controller instance.  This is
-       * used for picking the right view in render.
-       * @hide
-       */
-      this.called = 'init';
-
-      // bind all event handlers
-      this.bind();
-
-      /**
-       * @attribute element
-       * The controller instance's delegated element. This
-       * is set by [jQuery.Controller.prototype.setup setup]. It
-       * is a jQuery wrapped element.
-       *
-       * For example, if I add MyWidget to a '#myelement' element like:
-       *
-       *     $.Controller.extend("MyWidget",{
-       *       init : function(){
-       *         this.element.css("color","red")
-       *       }
-       *     })
-       *
-       *     $("#myelement").my_widget()
-       *
-       * MyWidget will turn #myelement's font color red.
-       *
-       * ## Using a different element.
-       *
-       * Sometimes, you want a different element to be this.element.  A
-       * very common example is making progressively enhanced form widgets.
-       *
-       * To change this.element, overwrite Controller's setup method like:
-       *
-       *     $.Controller.extend("Combobox",{
-       *       setup : function(el, options){
-       *          this.oldElement = $(el);
-       *          var newEl = $('<div/>');
-       *          this.oldElement.wrap(newEl);
-       *          this._super(newEl, options);
-       *       },
-       *       init : function(){
-       *          this.element //-> the div
-       *       },
-       *       ".option click" : function(){
-       *         // event handler bound on the div
-       *       },
-       *       destroy : function(){
-       *          var div = this.element; //save reference
-       *          this._super();
-       *          div.replaceWith(this.oldElement);
-       *       }
-       *     }
-       */
-      return [this.element, this.options].concat(makeArray(arguments).slice(2));
-      /**
-       * @function init
-       *
-       * Implement this.
-       */
-    },
-    /**
-     * Bind attaches event handlers that will be
-     * removed when the controller is removed.
-     *
-     * This used to be a good way to listen to events outside the controller's
-     * [jQuery.Controller.prototype.element element].  However,
-     * using templated event listeners is now the prefered way of doing this.
-     *
-     * ### Example:
-     *
-     *     init: function() {
-     *        // calls somethingClicked(el,ev)
-     *        this.bind('click','somethingClicked')
-     *
-     *        // calls function when the window is clicked
-     *        this.bind(window, 'click', function(ev){
-     *          //do something
-     *        })
-     *     },
-     *     somethingClicked: function( el, ev ) {
-     *
-     *     }
-     *
-     * @param {HTMLElement|jQuery.fn|Object} [el=this.element]
-     * The element to be bound.  If an eventName is provided,
-     * the controller's element is used instead.
-     *
-     * @param {String} eventName The event to listen for.
-     * @param {Function|String} func A callback function or the String name of a controller function.  If a controller
-     * function name is given, the controller function is called back with the bound element and event as the first
-     * and second parameter.  Otherwise the function is called back like a normal bind.
-     * @return {Integer} The id of the binding in this._bindings
-     */
-    bind: function(el, eventName, func) {
-      if (el === undefined) {
-        //adds bindings
-        this._bindings = [];
-        //go through the cached list of actions and use the processor to bind
-
-        var cls = this[STR_CONSTRUCTOR],
-          bindings = this._bindings,
-          actions = cls.actions,
-          element = this.element,
-          funcName,
-          ready;
-
-        for (funcName in actions) {
-          if (actions.hasOwnProperty(funcName)) {
-            ready = actions[funcName] || cls._action(funcName, this.options);
-            bindings.push(
-              ready.processor(
-                ready.delegate || element,
-                ready.parts[2],
-                ready.parts[1],
-                funcName,
-                this
-              )
-            );
-          }
-        }
-
-        //setup to be destroyed ... don't bind b/c we don't want to remove it
-        var destroyCB = shifter(this, 'destroy');
-        element.bind('destroyed', destroyCB);
-        bindings.push(function(el) {
-          $(el).unbind('destroyed', destroyCB);
-        });
-        return bindings.length;
-      }
-      if (typeof el == 'string') {
-        func = eventName;
-        eventName = el;
-        el = this.element;
-      }
-      return this._binder(el, eventName, func);
-    },
-    _binder: function(el, eventName, func, selector) {
-      if (typeof func == 'string') {
-        func = shifter(this, func);
-      }
-      this._bindings.push(binder(el, eventName, func, selector));
-      return this._bindings.length;
-    },
-    _unbind: function() {
-      var el = this.element[0];
-      each(this._bindings, function(key, value) {
-        value(el);
-      });
-      //adds bindings
-      this._bindings = [];
-    },
-    /**
-     * Delegate will delegate on an elememt and will be undelegated when the controller is removed.
-     * This is a good way to delegate on elements not in a controller's element.<br/>
-     * <h3>Example:</h3>
-     * @codestart
-     * // calls function when the any 'a.foo' is clicked.
-     * this.delegate(document.documentElement,'a.foo', 'click', function(ev){
-     *   //do something
-     * })
-     * @codeend
-     * @param {HTMLElement|jQuery.fn} [element=this.element] the element to delegate from
-     * @param {String} selector the css selector
-     * @param {String} eventName the event to bind to
-     * @param {Function|String} func A callback function or the String name of a controller function.  If a controller
-     * function name is given, the controller function is called back with the bound element and event as the first
-     * and second parameter.  Otherwise the function is called back like a normal bind.
-     * @return {Integer} The id of the binding in this._bindings
-     */
-    delegate: function(element, selector, eventName, func) {
-      if (typeof element == 'string') {
-        func = eventName;
-        eventName = selector;
-        selector = element;
-        element = this.element;
-      }
-      return this._binder(element, eventName, func, selector);
-    },
-    /**
-     * Update extends [jQuery.Controller.prototype.options this.options]
-     * with the `options` argument and rebinds all events.  It basically
-     * re-configures the controller.
-     *
-     * For example, the following controller wraps a recipe form. When the form
-     * is submitted, it creates the recipe on the server.  When the recipe
-     * is `created`, it resets the form with a new instance.
-     *
-     *     $.Controller.extend('Creator',{
-     *       "{recipe} created" : function(){
-     *         this.update({recipe : new Recipe()});
-     *         this.element[0].reset();
-     *         this.find("[type=submit]").val("Create Recipe")
+     *          this.element //-> the div
      *       },
-     *       "submit" : function(el, ev){
-     *         ev.preventDefault();
-     *         var recipe = this.options.recipe;
-     *         recipe.attrs( this.element.formParams() );
-     *         this.find("[type=submit]").val("Saving...")
-     *         recipe.save();
-     *       }
-     *     });
-     *     $('#createRecipes').creator({recipe : new Recipe()})
-     *
-     *
-     * @demo jquery/controller/demo-update.html
-     *
-     * Update is called if a controller's [jquery.controller.plugin jQuery helper] is
-     * called on an element that already has a controller instance
-     * of the same type.
-     *
-     * For example, a widget that listens for model updates
-     * and updates it's html would look like.
-     *
-     *     $.Controller.extend('Updater',{
-     *       // when the controller is created, update the html
-     *       init : function(){
-     *         this.updateView();
-     *       },
-     *
-     *       // update the html with a template
-     *       updateView : function(){
-     *         this.element.html( "content.ejs",
-     *                            this.options.model );
-     *       },
-     *
-     *       // if the model is updated
-     *       "{model} updated" : function(){
-     *         this.updateView();
-     *       },
-     *       update : function(options){
-     *         // make sure you call super
-     *         this._super(options);
-     *
-     *         this.updateView();
-     *       }
-     *     })
-     *
-     *     // create the controller
-     *     // this calls init
-     *     $('#item').updater({model: recipe1});
-     *
-     *     // later, update that model
-     *     // this calls "{model} updated"
-     *     recipe1.update({name: "something new"});
-     *
-     *     // later, update the controller with a new recipe
-     *     // this calls update
-     *     $('#item').updater({model: recipe2});
-     *
-     *     // later, update the new model
-     *     // this calls "{model} updated"
-     *     recipe2.update({name: "something newer"});
-     *
-     * _NOTE:_ If you overwrite `update`, you probably need to call
-     * this._super.
-     *
-     * ### Example
-     *
-     *     $.Controller.extend("Thing",{
-     *       init: function( el, options ) {
-     *         alert( 'init:'+this.options.prop )
-     *       },
-     *       update: function( options ) {
-     *         this._super(options);
-     *         alert('update:'+this.options.prop)
-     *       }
-     *     });
-     *     $('#myel').thing({prop : 'val1'}); // alerts init:val1
-     *     $('#myel').thing({prop : 'val2'}); // alerts update:val2
-     *
-     * @param {Object} options A list of options to merge with
-     * [jQuery.Controller.prototype.options this.options].  Often, this method
-     * is called by the [jquery.controller.plugin jQuery helper function].
-     */
-    update: function(options) {
-      extend(this.options, options);
-      this._unbind();
-      this.bind();
-    },
-    /**
-     * Destroy unbinds and undelegates all event handlers on this controller,
-     * and prevents memory leaks.  This is called automatically
-     * if the element is removed.  You can overwrite it to add your own
-     * teardown functionality:
-     *
-     *     $.Controller.extend("ChangeText",{
-     *       init : function(){
-     *         this.oldText = this.element.text();
-     *         this.element.text("Changed!!!")
+     *       ".option click" : function(){
+     *         // event handler bound on the div
      *       },
      *       destroy : function(){
-     *         this.element.text(this.oldText);
-     *         this._super(); //Always call this!
-     *     })
-     *
-     * Make sure you always call <code>_super</code> when overwriting
-     * controller's destroy event.  The base destroy functionality unbinds
-     * all event handlers the controller has created.
-     *
-     * You could call destroy manually on an element with ChangeText
-     * added like:
-     *
-     *     $("#changed").change_text("destroy");
-     *
+     *          var div = this.element; //save reference
+     *          this._super();
+     *          div.replaceWith(this.oldElement);
+     *       }
+     *     }
      */
-    destroy: function() {
-      if (this._destroyed) {
-        throw this[STR_CONSTRUCTOR].shortName + ' controller already deleted';
-      }
-      var self = this,
-        fname =
-          this[STR_CONSTRUCTOR].pluginName || this[STR_CONSTRUCTOR]._fullName,
-        controllers;
-
-      // mark as destroyed
-      this._destroyed = true;
-
-      // remove the className
-      this.element.removeClass(fname);
-
-      // unbind bindings
-      this._unbind();
-      // clean up
-      delete this._actions;
-
-      delete this.element.data('controllers')[fname];
-
-      $(this).triggerHandler('destroyed'); //in case we want to know if the controller is removed
-
-      this.element = null;
-    },
+    return [this.element, this.options].concat(makeArray(arguments).slice(2));
     /**
-     * Queries from the controller's element.
-     * @codestart
-     * ".destroy_all click" : function() {
-     *    this.find(".todos").remove();
-     * }
-     * @codeend
-     * @param {String} selector selection string
-     * @return {jQuery.fn} returns the matched elements
+     * @function init
+     *
+     * Implement this.
      */
-    find: function(selector) {
-      return this.element.find(selector);
-    },
-    //tells callback to set called on this.  I hate this.
-    _set_called: true
-  }
-);
+  },
+  /**
+   * Bind attaches event handlers that will be
+   * removed when the controller is removed.
+   *
+   * This used to be a good way to listen to events outside the controller's
+   * [jQuery.Controller.prototype.element element].  However,
+   * using templated event listeners is now the prefered way of doing this.
+   *
+   * ### Example:
+   *
+   *     init: function() {
+   *        // calls somethingClicked(el,ev)
+   *        this.bind('click','somethingClicked')
+   *
+   *        // calls function when the window is clicked
+   *        this.bind(window, 'click', function(ev){
+   *          //do something
+   *        })
+   *     },
+   *     somethingClicked: function( el, ev ) {
+   *
+   *     }
+   *
+   * @param {HTMLElement|jQuery.fn|Object} [el=this.element]
+   * The element to be bound.  If an eventName is provided,
+   * the controller's element is used instead.
+   *
+   * @param {String} eventName The event to listen for.
+   * @param {Function|String} func A callback function or the String name of a controller function.  If a controller
+   * function name is given, the controller function is called back with the bound element and event as the first
+   * and second parameter.  Otherwise the function is called back like a normal bind.
+   * @return {Integer} The id of the binding in this._bindings
+   */
+  bind: function(el, eventName, func) {
+    if (el === undefined) {
+      //adds bindings
+      this._bindings = [];
+      //go through the cached list of actions and use the processor to bind
 
-var processors = $.Controller.processors,
+      var cls = this[STR_CONSTRUCTOR],
+        bindings = this._bindings,
+        actions = cls.actions,
+        element = this.element,
+        funcName,
+        ready;
+
+      for (funcName in actions) {
+        if (actions.hasOwnProperty(funcName)) {
+          ready = actions[funcName] || cls._action(funcName, this.options);
+          bindings.push(
+            ready.processor(
+              ready.delegate || element,
+              ready.parts[2],
+              ready.parts[1],
+              funcName,
+              this
+            )
+          );
+        }
+      }
+
+      //setup to be destroyed ... don't bind b/c we don't want to remove it
+      var destroyCB = shifter(this, 'destroy');
+      element.bind('destroyed', destroyCB);
+      bindings.push(function(el) {
+        $(el).unbind('destroyed', destroyCB);
+      });
+      return bindings.length;
+    }
+    if (typeof el == 'string') {
+      func = eventName;
+      eventName = el;
+      el = this.element;
+    }
+    return this._binder(el, eventName, func);
+  },
+  _binder: function(el, eventName, func, selector) {
+    if (typeof func == 'string') {
+      func = shifter(this, func);
+    }
+    this._bindings.push(binder(el, eventName, func, selector));
+    return this._bindings.length;
+  },
+  _unbind: function() {
+    var el = this.element[0];
+    each(this._bindings, function(key, value) {
+      value(el);
+    });
+    //adds bindings
+    this._bindings = [];
+  },
+  /**
+   * Delegate will delegate on an elememt and will be undelegated when the controller is removed.
+   * This is a good way to delegate on elements not in a controller's element.<br/>
+   * <h3>Example:</h3>
+   * @codestart
+   * // calls function when the any 'a.foo' is clicked.
+   * this.delegate(document.documentElement,'a.foo', 'click', function(ev){
+   *   //do something
+   * })
+   * @codeend
+   * @param {HTMLElement|jQuery.fn} [element=this.element] the element to delegate from
+   * @param {String} selector the css selector
+   * @param {String} eventName the event to bind to
+   * @param {Function|String} func A callback function or the String name of a controller function.  If a controller
+   * function name is given, the controller function is called back with the bound element and event as the first
+   * and second parameter.  Otherwise the function is called back like a normal bind.
+   * @return {Integer} The id of the binding in this._bindings
+   */
+  delegate: function(element, selector, eventName, func) {
+    if (typeof element == 'string') {
+      func = eventName;
+      eventName = selector;
+      selector = element;
+      element = this.element;
+    }
+    return this._binder(element, eventName, func, selector);
+  },
+  /**
+   * Update extends [jQuery.Controller.prototype.options this.options]
+   * with the `options` argument and rebinds all events.  It basically
+   * re-configures the controller.
+   *
+   * For example, the following controller wraps a recipe form. When the form
+   * is submitted, it creates the recipe on the server.  When the recipe
+   * is `created`, it resets the form with a new instance.
+   *
+   *     $.Controller.extend('Creator',{
+   *       "{recipe} created" : function(){
+   *         this.update({recipe : new Recipe()});
+   *         this.element[0].reset();
+   *         this.find("[type=submit]").val("Create Recipe")
+   *       },
+   *       "submit" : function(el, ev){
+   *         ev.preventDefault();
+   *         var recipe = this.options.recipe;
+   *         recipe.attrs( this.element.formParams() );
+   *         this.find("[type=submit]").val("Saving...")
+   *         recipe.save();
+   *       }
+   *     });
+   *     $('#createRecipes').creator({recipe : new Recipe()})
+   *
+   *
+   * @demo jquery/controller/demo-update.html
+   *
+   * Update is called if a controller's [jquery.controller.plugin jQuery helper] is
+   * called on an element that already has a controller instance
+   * of the same type.
+   *
+   * For example, a widget that listens for model updates
+   * and updates it's html would look like.
+   *
+   *     $.Controller.extend('Updater',{
+   *       // when the controller is created, update the html
+   *       init : function(){
+   *         this.updateView();
+   *       },
+   *
+   *       // update the html with a template
+   *       updateView : function(){
+   *         this.element.html( "content.ejs",
+   *                            this.options.model );
+   *       },
+   *
+   *       // if the model is updated
+   *       "{model} updated" : function(){
+   *         this.updateView();
+   *       },
+   *       update : function(options){
+   *         // make sure you call super
+   *         this._super(options);
+   *
+   *         this.updateView();
+   *       }
+   *     })
+   *
+   *     // create the controller
+   *     // this calls init
+   *     $('#item').updater({model: recipe1});
+   *
+   *     // later, update that model
+   *     // this calls "{model} updated"
+   *     recipe1.update({name: "something new"});
+   *
+   *     // later, update the controller with a new recipe
+   *     // this calls update
+   *     $('#item').updater({model: recipe2});
+   *
+   *     // later, update the new model
+   *     // this calls "{model} updated"
+   *     recipe2.update({name: "something newer"});
+   *
+   * _NOTE:_ If you overwrite `update`, you probably need to call
+   * this._super.
+   *
+   * ### Example
+   *
+   *     $.Controller.extend("Thing",{
+   *       init: function( el, options ) {
+   *         alert( 'init:'+this.options.prop )
+   *       },
+   *       update: function( options ) {
+   *         this._super(options);
+   *         alert('update:'+this.options.prop)
+   *       }
+   *     });
+   *     $('#myel').thing({prop : 'val1'}); // alerts init:val1
+   *     $('#myel').thing({prop : 'val2'}); // alerts update:val2
+   *
+   * @param {Object} options A list of options to merge with
+   * [jQuery.Controller.prototype.options this.options].  Often, this method
+   * is called by the [jquery.controller.plugin jQuery helper function].
+   */
+  update: function(options) {
+    extend(this.options, options);
+    this._unbind();
+    this.bind();
+  },
+  /**
+   * Destroy unbinds and undelegates all event handlers on this controller,
+   * and prevents memory leaks.  This is called automatically
+   * if the element is removed.  You can overwrite it to add your own
+   * teardown functionality:
+   *
+   *     $.Controller.extend("ChangeText",{
+   *       init : function(){
+   *         this.oldText = this.element.text();
+   *         this.element.text("Changed!!!")
+   *       },
+   *       destroy : function(){
+   *         this.element.text(this.oldText);
+   *         this._super(); //Always call this!
+   *     })
+   *
+   * Make sure you always call <code>_super</code> when overwriting
+   * controller's destroy event.  The base destroy functionality unbinds
+   * all event handlers the controller has created.
+   *
+   * You could call destroy manually on an element with ChangeText
+   * added like:
+   *
+   *     $("#changed").change_text("destroy");
+   *
+   */
+  /**
+   * Queries from the controller's element.
+   * @codestart
+   * ".destroy_all click" : function() {
+   *    this.find(".todos").remove();
+   * }
+   * @codeend
+   * @param {String} selector selection string
+   * @return {jQuery.fn} returns the matched elements
+   */
+  //tells callback to set called on this.  I hate this.
+  _set_called: true
+};
+
+var processors = {},
   //------------- PROCESSSORS -----------------------------
   //processors do the binding.  They return a function that
   //unbinds when called.
@@ -1081,6 +800,7 @@ var i,
     }
     return false;
   };
+
 $.fn.extend({
   /**
    * @function controllers
@@ -1118,4 +838,4 @@ $.fn.extend({
   }
 });
 
-export default $.Controller;
+export default $Controller;
