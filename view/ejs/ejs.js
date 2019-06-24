@@ -1,5 +1,5 @@
 import '../view.js';
-import rsplit from '../../lang/string/rsplit/rsplit.js';
+import rsplit from '../../lang/string/rsplit/rsplit.ts';
 import ejs from 'ejs';
 
 // HELPER METHODS ==============

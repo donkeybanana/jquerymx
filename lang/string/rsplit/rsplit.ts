@@ -7,24 +7,23 @@
  * @param {RegExp} regex A regular expression
  * @return {Array} An array of strings
  */
-export default function(string, regex) {
-  var result = regex.exec(string),
+export default function(str: string, regex: RegExp) {
+  var result = regex.exec(str),
     retArr = [],
-    first_idx,
-    last_idx;
+    first_idx: number
+
   while (result !== null) {
     first_idx = result.index;
-    last_idx = regex.lastIndex;
     if (first_idx !== 0) {
-      retArr.push(string.substring(0, first_idx));
-      string = string.slice(first_idx);
+      retArr.push(str.substring(0, first_idx));
+      str = str.slice(first_idx);
     }
     retArr.push(result[0]);
-    string = string.slice(result[0].length);
-    result = regex.exec(string);
+    str = str.slice(result[0].length);
+    result = regex.exec(str);
   }
-  if (string !== '') {
-    retArr.push(string);
+  if (str !== '') {
+    retArr.push(str);
   }
   return retArr;
 }
