@@ -19,5 +19,6 @@ module.exports = {
   externals: {
     jquery: '$',
     ejs: 'ejs'
-  }
+  },
+  resolve: { extensions: ['.js', '.ts'] }
 };

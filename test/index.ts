@@ -14,6 +14,7 @@ import './dom/selection_test.js';
 
 import './lang/string_test.js';
 import './lang/string/deparam_test.js';
+import './lang/string/rsplit_test.ts';
 import './lang/observe_test.js';
 import './lang/observe/delegate_test.js';
 import './lang/object_test.js';
