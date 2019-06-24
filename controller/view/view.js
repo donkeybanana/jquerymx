@@ -1,3 +1,4 @@
+import '../controller.js';
 import '../../view/view.js';
 
 const classParts = Class =>
@@ -7,14 +8,16 @@ const resolveView = (view, action_name) =>
   !view ? action_name.replace(/\.|#/g, '').replace(/ /g, '_') : view;
 
 const addSuffix = view =>
-  typeof view == 'string' && /\.[\w\d]+$/.test(view) ? view : view + $.View.ext;
+  typeof view == 'string' && /\.[\w\d]+$/.test(view)
+    ? view
+    : view + jQuery.View.ext;
 
 const addPrefix = (view, Class) => {
   if (!hasControllers(Class) || view.indexOf('/') !== -1) {
     return view;
   }
 
-  return $.String.underscore(
+  return jQuery.String.underscore(
     classParts(Class)[1]
       .concat(view)
       .join('/')
@@ -23,7 +26,7 @@ const addPrefix = (view, Class) => {
 
 const addRoot = (view, Class) =>
   '//' +
-  $.String.underscore(
+  jQuery.String.underscore(
     classParts(Class)[0]
       .concat('views')
       .concat(view)
@@ -33,14 +36,14 @@ const addRoot = (view, Class) =>
 const hasControllers = Class =>
   Class.fullName.split('.').indexOf('Controllers') >= 0;
 
-export const getFolder = function() {
-  return $.String.underscore(this.fullName.replace(/\./g, '/')).replace(
+jQuery.Controller.getFolder = function() {
+  return jQuery.String.underscore(this.fullName.replace(/\./g, '/')).replace(
     '/Controllers',
     ''
   );
 };
 
-export const _calculatePosition = function(Class, view, action_name) {
+jQuery.Controller._calculatePosition = function(Class, view, action_name) {
   if (typeof view == 'string' && view.substr(0, 2) == '//') {
     return view;
   }
@@ -51,15 +54,15 @@ export const _calculatePosition = function(Class, view, action_name) {
   );
 };
 
-export const calculateHelpers = function(myhelpers) {
+var calculateHelpers = function(myhelpers) {
   var helpers = {};
   if (myhelpers) {
-    if ($.isArray(myhelpers)) {
+    if (jQuery.isArray(myhelpers)) {
       for (var h = 0; h < myhelpers.length; h++) {
-        $.extend(helpers, myhelpers[h]);
+        jQuery.extend(helpers, myhelpers[h]);
       }
     } else {
-      $.extend(helpers, myhelpers);
+      jQuery.extend(helpers, myhelpers);
     }
   } else {
     if (this._default_helpers) {
@@ -71,13 +74,13 @@ export const calculateHelpers = function(myhelpers) {
     for (var i = 0; i < parts.length; i++) {
       if (current) {
         if (typeof current.Helpers == 'object') {
-          $.extend(helpers, current.Helpers);
+          jQuery.extend(helpers, current.Helpers);
         }
         current = current[parts[i]];
       }
     }
     if (current && typeof current.Helpers == 'object') {
-      $.extend(helpers, current.Helpers);
+      jQuery.extend(helpers, current.Helpers);
     }
     this._default_helpers = helpers;
   }
@@ -118,7 +121,7 @@ export const calculateHelpers = function(myhelpers) {
  * this controller class's "Helpers" property will be used.
  *
  */
-export const view = function(view, data, myhelpers) {
+jQuery.Controller.prototype.view = function(view, data, myhelpers) {
   //shift args if no view is provided
   if (typeof view != 'string' && !myhelpers) {
     myhelpers = data;
@@ -126,7 +129,7 @@ export const view = function(view, data, myhelpers) {
     view = null;
   }
   //guess from controller name
-  view = _calculatePosition(this.Class, view, this.called);
+  view = jQuery.Controller._calculatePosition(this.Class, view, this.called);
 
   //calculate data
   data = data || this;
@@ -134,5 +137,5 @@ export const view = function(view, data, myhelpers) {
   //calculate helpers
   var helpers = calculateHelpers.call(this, myhelpers);
 
-  return $.View(view, data, helpers); //what about controllers in other folders?
+  return jQuery.View(view, data, helpers); //what about controllers in other folders?
 };
