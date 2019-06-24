@@ -11,6 +11,7 @@ module.exports = {
     ]
   },
   externals: {
-    jquery: '$'
+    jquery: '$',
+    ejs: 'ejs'
   }
 };

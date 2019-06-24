@@ -302,7 +302,6 @@ var $view = ($.View = function(view, data, helpers, callback) {
   // makes sure there's a template, if not, has steal provide a warning
   checkText = function(text, url) {
     if (!text.match(/[^\s]/)) {
-      steal.dev.log('There is no template or an empty template at ' + url);
       throw '$.View ERROR: There is no template or an empty template at ' + url;
     }
   },
@@ -538,18 +537,6 @@ $.extend($view, {
    */
   register: function(info) {
     this.types['.' + info.suffix] = info;
-
-    if (window.steal) {
-      steal.dev.warn('steal.type is no longer supprted');
-
-      // steal.type(info.suffix + ' view js', function(options, success, error) {
-      //   var type = $view.types['.' + options.type],
-      //     id = toId(options.rootSrc + '');
-
-      //   options.text = type.script(id, options.text);
-      //   success();
-      // });
-    }
   },
   types: {},
   /**
@@ -587,25 +574,6 @@ $.extend($view, {
     };
   }
 });
-if (window.steal) {
-  steal.dev.warn('steal.type is no longer supported');
-
-  // steal.type('view js', function(options, success, error) {
-  //   var type = $view.types['.' + options.type],
-  //     id = toId(options.rootSrc + '');
-
-  //   options.text =
-  //     "steal('" +
-  //     (type.plugin || 'jquery/view/' + options.type) +
-  //     "').then(function($){" +
-  //     "$.View.preload('" +
-  //     id +
-  //     "'," +
-  //     options.text +
-  //     ');\n})';
-  //   success();
-  // });
-}
 
 //---- ADD jQUERY HELPERS -----
 //converts jquery functions to use views

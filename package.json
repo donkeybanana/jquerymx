@@ -5,11 +5,7 @@
   "dependencies": {
     "ejs": "^2.6.1",
     "jquery": "^3.3.1",
-    "qunit": "^2.8.0",
-    "steal": "^2.2.1"
-  },
-  "steal": {
-    "paths": {}
+    "qunit": "^2.8.0"
   },
   "prettier": {
     "semi": true,
@@ -21,9 +17,11 @@
     "@babel/preset-env": "^7.4.5",
     "babel-loader": "^8.0.6",
     "webpack": "^4.33.0",
-    "webpack-cli": "^3.3.3"
+    "webpack-cli": "^3.3.3",
+    "webpack-dev-server": "^3.7.2"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "test": "webpack-dev-server --config webpack.test.js"
   }
 }

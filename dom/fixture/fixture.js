@@ -15,7 +15,7 @@ $.ajaxPrefilter(function(settings, originalOptions, jqXHR) {
   // if we don't have a fixture, do nothing
   if (!settings.fixture) {
     if (window.location.protocol === 'file:') {
-      steal.dev.log('ajax request to ' + settings.url + ', no fixture found');
+      console.log('ajax request to ' + settings.url + ', no fixture found');
     }
     return;
   }
@@ -31,15 +31,10 @@ $.ajaxPrefilter(function(settings, originalOptions, jqXHR) {
 
     if (/^\/\//.test(url)) {
       var sub = settings.fixture.substr(2) + '';
-      url =
-        steal !== undefined &&
-        steal.root != undefined &&
-        typeof steal.root.mapJoin === 'funciton'
-          ? steal.root.mapJoin(sub) + ''
-          : (url = '/' + sub);
+      url = '/' + sub;
     }
     //!steal-remove-start
-    steal.dev.log('looking for fixture in ' + url);
+    console.log('looking for fixture in ' + url);
     //!steal-remove-end
     settings.url = url;
     settings.data = null;
@@ -51,7 +46,7 @@ $.ajaxPrefilter(function(settings, originalOptions, jqXHR) {
     }
   } else {
     //!steal-remove-start
-    steal.dev.log(
+    console.log(
       'using a dynamic fixture for ' + settings.type + ' ' + settings.url
     );
     //!steal-remove-end

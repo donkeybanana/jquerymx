@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+          "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <head>
-        <meta charset="UTF-8">
-        <title>jQueryMX Webpack Demo</title>
+        <link rel="stylesheet" type="text/css" href="node_modules/qunit/qunit/qunit.css" />
+        <title>jQueryMX Test</title>
     </head>
     <body>
-        <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
-        <script type="text/javascript" src="dist/main.js"></script>
+        <h1 id="qunit-header">JavaScriptMVC jQuery Test Suite</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+        <div id="qunit-test-area"></div>
+
+        <script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
+        <script type="text/javascript" src="node_modules/ejs/ejs.min.js"></script>
+        <script type="text/javascript" src="bundle.js"></script>
     </body>
 </html>

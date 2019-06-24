@@ -1,4 +1,4 @@
-import 'class/class.js';
+import '../class/class.js';
 import { module, test } from 'qunit/qunit/qunit.js';
 
 module('class');

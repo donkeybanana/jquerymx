@@ -625,7 +625,7 @@ extend(clss, {
         //steal.dev.isHappyName(fullName)
       }
       if (current[shortName]) {
-        steal.dev.warn("class.js There's already something called " + fullName);
+        console.warn("class.js There's already something called " + fullName);
       }
       //!steal-remove-end
       current[shortName] = Class;

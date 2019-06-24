@@ -809,7 +809,7 @@ jQuery.Class(
       }
       //!steal-remove-start
       if (!proto) {
-        steal.dev.warn(
+        console.warn(
           'model.js ' +
             fullName +
             ' has no static properties.  You probably need  ,{} '
@@ -1066,7 +1066,7 @@ jQuery.Class(
 
       //!steal-remove-start
       if (!length) {
-        steal.dev.warn(
+        console.warn(
           'model.js models has no data.  If you have one item, use model'
         );
       }
@@ -1835,7 +1835,7 @@ each(
       trigger(this, funcName);
 
       //!steal-remove-start
-      steal.dev.log('Model.js - ' + constructor.shortName + ' ' + funcName);
+      console.log('Model.js - ' + constructor.shortName + ' ' + funcName);
       //!steal-remove-end
 
       // call event on the instance's Class
