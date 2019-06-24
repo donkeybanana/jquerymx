@@ -1,12 +1,18 @@
 const path = require('path');
 module.exports = {
   mode: 'production',
-  entry: './index.js',
+  entry: './index.ts',
   module: {
     rules: [
       {
         test: /\.js$/,
-        loader: require.resolve('babel-loader')
+        loader: require.resolve('babel-loader'),
+        exclude: /node-modules/
+      },
+      {
+        test: /\.tsx?$/,
+        loader: require.resolve('awesome-typescript-loader'),
+        exclude: /node-modules/
       }
     ]
   },
