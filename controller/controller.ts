@@ -4,8 +4,10 @@ import '../event/destroyed/destroyed.js';
 import { default as view, _calculatePosition } from './view/view';
 
 declare global {
+  interface JQueryStatic {
+    Controller: JQueryController;
+  }
   interface JQuery {
-    Controller(): JQueryController;
     controller(): JQueryController;
     controllers(): [JQueryController];
   }
@@ -20,6 +22,7 @@ declare global {
       ) => void;
     };
 
+    constructor(name: string, static: object, proto: object): JQueryController;
     extend(name: string, static: object, proto: object): JQueryController;
   }
 }
