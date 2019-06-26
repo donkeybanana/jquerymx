@@ -1,4 +1,4 @@
-import '../controller/controller.js';
+import '../controller/controller.ts';
 
 /**
  * @class jQuery.Tie

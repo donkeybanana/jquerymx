@@ -1,4 +1,4 @@
-import '../controller/controller.js';
+import '../controller/controller.ts';
 import '../controller/subscribe/subscribe.js';
 
 import { module, test } from 'qunit/qunit/qunit.js';

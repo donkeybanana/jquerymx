@@ -1,9 +1,50 @@
-import '../class/class.js';
+import { default as $Class } from '../class/class.js';
 import { sub, underscore } from '../lang/string/string.js';
 import '../event/destroyed/destroyed.js';
-import { default as view, _calculatePosition } from './view/view.ts';
+import { default as view, _calculatePosition } from './view/view';
+
+declare global {
+  interface JQuery {
+    Controller(): JQueryController;
+    controller(): JQueryController;
+    controllers(): [JQueryController];
+  }
+  interface JQueryController {
+    processors: {
+      [name: string]: (
+        el: HTMLElement | JQueryStatic,
+        event: string,
+        selector: string,
+        method: 'string',
+        controller: JQueryController
+      ) => void;
+    };
+
+    extend(name: string, static: object, proto: object): JQueryController;
+  }
+}
 
 // ------- HELPER FUNCTIONS  ------
+
+const getPluginInstance = (el: HTMLElement | JQueryStatic, name: string): any =>
+  getControllers(el)[name];
+const getControllers = (el: HTMLElement | JQueryStatic): object =>
+  $(el).data('controllers') || {};
+const addController = (
+  el: HTMLElement | JQueryStatic,
+  name: string,
+  instance: any
+): void => {
+  $(el).data('controllers', {
+    ...getControllers(el),
+    [name]: instance
+  });
+};
+const removeController = (el: JQueryStatic, name: string): void => {
+  var controllers = getControllers(el);
+  delete controllers[name];
+  $(el).data('controllers', controllers);
+};
 
 // Binds an element, returns a function that unbinds
 var bind = function(el, ev, callback) {
@@ -77,11 +118,7 @@ var bind = function(el, ev, callback) {
   actionMatcher = /[^\w]/,
   // handles parameterized action names
   parameterReplacer = /\{([^\}]+)\}/g,
-  breaker = /^(?:(.*?)\s)?([\w\.\:>]+)$/,
-  basicProcessor,
-  data = function(el, data) {
-    return $.data(el, 'controllers', data);
-  };
+  breaker = /^(?:(.*?)\s)?([\w\.\:>]+)$/;
 /**
  * @class jQuery.Controller
  * @parent jquerymx
@@ -325,7 +362,7 @@ var bind = function(el, ev, callback) {
  * These methods let you call one controller from another controller.
  *
  */
-$.Class(
+const $Controller: JQueryController = $Class.extend(
   'jQuery.Controller',
   /**
    * @Static
@@ -375,33 +412,35 @@ $.Class(
 
       // create jQuery plugin
       if (!$.fn[pluginname]) {
-        $.fn[pluginname] = function(options) {
-          var args = makeArray(arguments),
-            //if the arg is a method on this controller
-            isMethod =
-              typeof options == 'string' &&
-              isFunction(controller[STR_PROTOTYPE][options]),
-            meth = args[0];
-          return this.each(function() {
-            //check if created
-            var controllers = data(this),
-              //plugin is actually the controller instance
-              plugin = controllers && controllers[pluginname];
+        $.fn.extend({
+          [pluginname]: function(
+            this: JQuery,
+            options: object | string
+          ): JQuery {
+            var args = makeArray(arguments),
+              //if the arg is a method on this controller
+              isMethod =
+                typeof options == 'string' &&
+                isFunction(controller[STR_PROTOTYPE][options]),
+              meth = args[0];
+            return this.each(function() {
+              const plugin = getPluginInstance(this, pluginname);
 
-            if (plugin) {
-              if (isMethod) {
-                // call a method on the controller with the remaining args
-                plugin[meth].apply(plugin, args.slice(1));
+              if (plugin) {
+                if (isMethod) {
+                  // call a method on the controller with the remaining args
+                  plugin[meth].apply(plugin, args.slice(1));
+                } else {
+                  // call the plugin's update method
+                  plugin.update.apply(plugin, args);
+                }
               } else {
-                // call the plugin's update method
-                plugin.update.apply(plugin, args);
+                //create a new controller instance
+                controller.newInstance.apply(controller, [this].concat(args));
               }
-            } else {
-              //create a new controller instance
-              controller.newInstance.apply(controller, [this].concat(args));
-            }
-          });
-        };
+            });
+          }
+        });
       }
 
       // make sure listensTo is an array
@@ -640,13 +679,12 @@ $.Class(
         : [element])[0];
 
       //set element and className on element
-      var pluginname = cls.pluginName || cls._fullName;
+      const pluginname = cls.pluginName || cls._fullName;
 
       //set element and className on element
       this.element = $(element).addClass(pluginname);
 
-      //set in data
-      (data(element) || data(element, {}))[pluginname] = this;
+      addController(element, pluginname, this);
 
       /**
        * @attribute options
@@ -1021,7 +1059,7 @@ $.Class(
       // clean up
       delete this._actions;
 
-      delete this.element.data('controllers')[fname];
+      removeController(this.element, fname);
 
       $(this).triggerHandler('destroyed'); //in case we want to know if the controller is removed
 
@@ -1047,7 +1085,7 @@ $.Class(
   }
 );
 
-var processors = $.Controller.processors,
+var processors = $Controller.processors,
   //------------- PROCESSSORS -----------------------------
   //processors do the binding.  They return a function that
   //unbinds when called.
@@ -1098,7 +1136,7 @@ $.fn.extend({
       cname;
     //check if arguments
     this.each(function() {
-      controllers = $.data(this, 'controllers');
+      controllers = getControllers(this);
       for (cname in controllers) {
         if (controllers.hasOwnProperty(cname)) {
           c = controllers[cname];
@@ -1121,4 +1159,4 @@ $.fn.extend({
   }
 });
 
-export default $.Controller;
+export default $Controller;

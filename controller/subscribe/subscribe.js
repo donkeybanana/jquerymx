@@ -1,6 +1,6 @@
 /*global OpenAjax: true */
 
-import '../controller.js';
+import '../controller.ts';
 import '../../lang/openajax/openajax.js';
 
 /**

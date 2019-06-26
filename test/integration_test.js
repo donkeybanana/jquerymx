@@ -1,5 +1,5 @@
 import '../model/model.js';
-import '../controller/controller.js';
+import '../controller/controller.ts';
 import '../view/ejs/ejs.js';
 import '../dom/fixture/fixture.js';
 
