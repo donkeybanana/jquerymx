@@ -1,6 +1,7 @@
 import '../class/class.js';
 import { sub, underscore } from '../lang/string/string.js';
 import '../event/destroyed/destroyed.js';
+import { default as view, _calculatePosition } from './view/view.ts';
 
 // ------- HELPER FUNCTIONS  ------
 
@@ -586,7 +587,9 @@ $.Class(
      * In [jQuery.Controller.prototype.setup setup] the options passed to the controller
      * are merged with defaults.  This is not a deep merge.
      */
-    defaults: {}
+    defaults: {},
+
+    _calculatePosition
   },
   /**
    * @Prototype
@@ -1038,7 +1041,9 @@ $.Class(
       return this.element.find(selector);
     },
     //tells callback to set called on this.  I hate this.
-    _set_called: true
+    _set_called: true,
+
+    view
   }
 );
 

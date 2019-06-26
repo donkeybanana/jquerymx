@@ -1,5 +1,5 @@
-import '../controller.js';
-import '../../view/view.js';
+import * as $ from 'jquery';
+import $View from '../../view/view.js';
 import { underscore } from '../../lang/string/string.js';
 
 const classParts = Class =>
@@ -9,9 +9,7 @@ const resolveView = (view, action_name) =>
   !view ? action_name.replace(/\.|#/g, '').replace(/ /g, '_') : view;
 
 const addSuffix = view =>
-  typeof view == 'string' && /\.[\w\d]+$/.test(view)
-    ? view
-    : view + jQuery.View.ext;
+  typeof view == 'string' && /\.[\w\d]+$/.test(view) ? view : view + $View.ext;
 
 const addPrefix = (view, Class) => {
   if (!hasControllers(Class) || view.indexOf('/') !== -1) {
@@ -37,14 +35,14 @@ const addRoot = (view, Class) =>
 const hasControllers = Class =>
   Class.fullName.split('.').indexOf('Controllers') >= 0;
 
-jQuery.Controller.getFolder = function() {
+const getFolder = function() {
   return underscore(this.fullName.replace(/\./g, '/')).replace(
     '/Controllers',
     ''
   );
 };
 
-jQuery.Controller._calculatePosition = function(Class, view, action_name) {
+export const _calculatePosition = function(Class, view, action_name) {
   if (typeof view == 'string' && view.substr(0, 2) == '//') {
     return view;
   }
@@ -60,28 +58,28 @@ var calculateHelpers = function(myhelpers) {
   if (myhelpers) {
     if (Array.isArray(myhelpers)) {
       for (var h = 0; h < myhelpers.length; h++) {
-        jQuery.extend(helpers, myhelpers[h]);
+        $.extend(helpers, myhelpers[h]);
       }
     } else {
-      jQuery.extend(helpers, myhelpers);
+      $.extend(helpers, myhelpers);
     }
   } else {
     if (this._default_helpers) {
       helpers = this._default_helpers;
     }
     //load from name
-    var current = window;
+    var current = this;
     var parts = this.constructor.fullName.split(/\./);
     for (var i = 0; i < parts.length; i++) {
       if (current) {
         if (typeof current.Helpers == 'object') {
-          jQuery.extend(helpers, current.Helpers);
+          $.extend(helpers, current.Helpers);
         }
         current = current[parts[i]];
       }
     }
     if (current && typeof current.Helpers == 'object') {
-      jQuery.extend(helpers, current.Helpers);
+      $.extend(helpers, current.Helpers);
     }
     this._default_helpers = helpers;
   }
@@ -122,7 +120,7 @@ var calculateHelpers = function(myhelpers) {
  * this controller class's "Helpers" property will be used.
  *
  */
-jQuery.Controller.prototype.view = function(view, data, myhelpers) {
+export default function(view, data, myhelpers) {
   //shift args if no view is provided
   if (typeof view != 'string' && !myhelpers) {
     myhelpers = data;
@@ -130,7 +128,7 @@ jQuery.Controller.prototype.view = function(view, data, myhelpers) {
     view = null;
   }
   //guess from controller name
-  view = jQuery.Controller._calculatePosition(this.Class, view, this.called);
+  view = _calculatePosition(this.Class, view, this.called);
 
   //calculate data
   data = data || this;
@@ -138,5 +136,5 @@ jQuery.Controller.prototype.view = function(view, data, myhelpers) {
   //calculate helpers
   var helpers = calculateHelpers.call(this, myhelpers);
 
-  return jQuery.View(view, data, helpers); //what about controllers in other folders?
-};
+  return $View(view, data, helpers); //what about controllers in other folders?
+}

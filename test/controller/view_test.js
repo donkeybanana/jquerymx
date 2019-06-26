@@ -1,4 +1,4 @@
-import '../../controller/view/view.js';
+import '../../controller/controller.js';
 import '../../view/micro/micro.js';
 import { assert, module, test } from 'qunit/qunit/qunit.js';
 
