@@ -25,11 +25,7 @@ module('model/associations', {
           const { loans, issues, ...params } = attrs;
           return $.ajax({
             url: '/people/' + id,
-            data: {
-              ...params,
-              loans: loans.map(loan => loan.serialize()),
-              issues: issues.map(issue => issue.serialize())
-            },
+            data: params,
             type: 'post',
             dataType: 'json',
             fixture: function() {
