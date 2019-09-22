@@ -26,6 +26,7 @@
   },
   "scripts": {
     "build": "webpack",
+    "demo": "webpack-dev-server --config webpack.demo.js",
     "test": "webpack-dev-server --config webpack.test.js"
   }
 }

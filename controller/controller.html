@@ -1,24 +1,21 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-          "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
     <head>
         <title>Controller Example</title>
-        <link rel="stylesheet" href="./demo.css" />
+        <link rel="stylesheet" href="demo.css" />
     </head>
     <body>
-        <div id="demo-html">
-            <ul id='tabs' class='ui-helper-clearfix''>
-                <li><a href='#tab1'>Tab 1</a></li>
-                <li><a href='#tab2'>Tab 2</a></li>
-                <li><a href='#tab3'>Tab 3</a></li>
+        <div id="tabs">
+            <ul class='ui-helper-clearfix'>
+                <li><a href="#tab1">Tab 1</a></li>
+                <li><a href="#tab2">Tab 2</a></li>
+                <li><a href="#tab3">Tab 3</a></li>
             </ul>
-            <div id='tab1' class='tab'>Tab 1 Content</div>
-            <div id='tab2' class='tab'>Tab 2 Content</div>
-            <div id='tab3' class='tab'>Tab 3 Content</div>
+            <div id="tab1" class="tab">Tab 1 Content</div>
+            <div id="tab2" class="tab">Tab 2 Content</div>
+            <div id="tab3" class="tab">Tab 3 Content</div>
         </div>
-        <script type="text/javascript"
-                src="../node_modules/steal/steal.js"
-                main="~/controller/demo.js"
-        ></script>
+        <script type="text/javascript" src="../node_modules/jquery/dist/jquery.js"></script>
+        <script type="text/javascript" src="../node_modules/ejs/ejs.min.js"></script>
+        <script type="text/javascript" src="../bundle.js"></script>
     </body>
 </html>

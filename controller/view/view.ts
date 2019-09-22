@@ -5,8 +5,8 @@ import { underscore } from '../../lang/string/string.js';
 const classParts = Class =>
   Class.fullName.split('.Controllers.').map(part => part.split('.'));
 
-const resolveView = (view, action_name) =>
-  !view ? action_name.replace(/\.|#/g, '').replace(/ /g, '_') : view;
+const resolveView = (view, action?: string) =>
+  !view ? action.replace(/\.|#/g, '').replace(/ /g, '_') : view;
 
 const addSuffix = view =>
   typeof view == 'string' && /\.[\w\d]+$/.test(view) ? view : view + $View.ext;
@@ -42,15 +42,12 @@ const getFolder = function() {
   );
 };
 
-export const _calculatePosition = function(Class, view, action_name) {
+export const _calculatePosition = function(Class, view, action?: string) {
   if (typeof view == 'string' && view.substr(0, 2) == '//') {
     return view;
   }
 
-  return addRoot(
-    addPrefix(addSuffix(resolveView(view, action_name)), Class),
-    Class
-  );
+  return addRoot(addPrefix(addSuffix(resolveView(view, action)), Class), Class);
 };
 
 var calculateHelpers = function(myhelpers) {
@@ -94,7 +91,7 @@ var calculateHelpers = function(myhelpers) {
  * @tag view
  * Renders a View template with the controller instance. If the first argument
  * is not supplied,
- * it looks for a view in /views/controller_name/action_name.ejs.
+ * it looks for a view in /views/controller_name/action.ejs.
  * If data is not provided, it uses the controller instance as data.
  * @codestart
  * TasksController = $.Controller.extend('TasksController',{
@@ -128,7 +125,7 @@ export default function(view, data, myhelpers) {
     view = null;
   }
   //guess from controller name
-  view = _calculatePosition(this.Class, view, this.called);
+  view = _calculatePosition(this.constructor, view);
 
   //calculate data
   data = data || this;

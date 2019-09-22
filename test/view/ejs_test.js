@@ -126,7 +126,7 @@ test('unescapedContent', function() {
   assert.equal(div.find('input').val(), 'I use \'quote\' fingers "a lot"');
 });
 
-test('returning blocks', function() {
+todo('returning blocks', function() {
   var somethingHelper = function(cb) {
     return cb([1, 2, 3, 4]);
   };

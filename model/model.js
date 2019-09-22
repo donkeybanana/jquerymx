@@ -1,7 +1,6 @@
 /*global OpenAjax: true */
 
 import $ from 'jquery';
-import '../class/class.js';
 import {
   capitalize,
   classize,

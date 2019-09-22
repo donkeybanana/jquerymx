@@ -1,75 +1,70 @@
-import '../../controller/controller.ts';
+import Controller from '../../controller/controller.ts';
 import '../../view/micro/micro.js';
 import { assert, module, test } from 'qunit/qunit/qunit.js';
 
 module('controller/view');
 
 test('this.view', function() {
-  const C = $.Controller.extend('Test.Controller', {
-    init: function() {
-      this.element.html(this.view());
+  class ThisView extends Controller {
+    static namespace = 'Test.Controller.View';
+    init() {
+      this.element.html(this.view('init'));
     }
-  });
+  }
+  ThisView.registerPlugin();
   jQuery.View.ext = '.micro';
-  $('#qunit-test-area').append("<div id='cont_view'/>");
 
-  new C($('#cont_view'));
+  $("<div id='cont_view' />")
+    .appendTo('#qunit-test-area')
+    .test_view_this_view();
 
   assert.ok(/Hello World/i.test($('#cont_view').text()), 'view rendered');
+  $('#qunit-test-area').html('');
 });
 
 test('test.suffix.doubling', function() {
-  const C = $.Controller.extend('Test.Controller', {
-    init: function() {
+  class SuffixDoubling extends Controller {
+    static namespace = 'Test.Controller.View';
+    init() {
       this.element.html(this.view('init.micro'));
     }
-  });
+  }
+  SuffixDoubling.registerPlugin();
 
-  jQuery.View.ext = '.ejs'; // Reset view extension to default
+  jQuery.View.ext = '.ejs';
   assert.equal('.ejs', jQuery.View.ext);
 
-  $('#qunit-test-area').append("<div id='suffix_test_cont_view'/>");
-
-  new C($('#suffix_test_cont_view'));
+  $("<div id='suffix_test_cont_view'/>")
+    .appendTo('#qunit-test-area')
+    .test_view_suffix_doubling();
 
   assert.ok(
     /Hello World/i.test($('#suffix_test_cont_view').text()),
     'view rendered'
   );
+  $('#qunit-test-area').html('');
 });
 
 test('complex paths nested inside a controller directory', function() {
-  const C1 = $.Controller.extend('Myproject.Controllers.Foo.Bar');
-  const path1 = jQuery.Controller._calculatePosition(C1, 'init.ejs', 'init');
+  class Bar extends Controller {
+    static namespace = 'Myproject.Controllers.Foo';
+  }
+  const barPath = Controller._calculatePosition(Bar, 'init.ejs', 'init');
+
   assert.equal(
-    path1,
+    barPath,
     '//myproject/views/foo/bar/init.ejs',
     'view path is correct'
   );
-  assert.equal(
-    path1,
-    jQuery.Controller._calculatePosition(
-      Myproject.Controllers.Foo.Bar,
-      'init.ejs',
-      'init'
-    ),
-    'same path is returned for global vs assigned Class'
-  );
 
-  const C2 = $.Controller.extend('Myproject.Controllers.FooBar');
-  const path2 = jQuery.Controller._calculatePosition(C2, 'init.ejs', 'init');
+  class FooBar extends Controller {
+    static namespace = 'Myproject.Controllers';
+  }
+  const fooBarPath = Controller._calculatePosition(FooBar, 'init.ejs', 'init');
+
   assert.equal(
-    path2,
+    fooBarPath,
     '//myproject/views/foo_bar/init.ejs',
     'view path is correct'
-  );
-  assert.equal(
-    path1,
-    jQuery.Controller._calculatePosition(
-      Myproject.Controllers.Foo.Bar,
-      'init.ejs',
-      'init'
-    ),
-    'same path is returned for global vs assigned Class'
   );
 });

@@ -1,5 +1,3 @@
-import '../../class/class.js';
-
 // Alias helpful methods from jQuery
 var isObject = function(obj) {
     return typeof obj === 'object' && obj !== null && obj;

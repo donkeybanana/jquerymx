@@ -1,7 +1,4 @@
-/*global OpenAjax: true */
-
-import '../controller.ts';
-import '../../lang/openajax/openajax.js';
+import OpenAjax from '../../lang/openajax/openajax.js';
 
 /**
  * @function jQuery.Controller.static.processors.subscribe
@@ -27,28 +24,16 @@ import '../../lang/openajax/openajax.js';
  *
  * @param {HTMLElement} el the element being bound.  This isn't used.
  * @param {String} event the event type (subscribe).
- * @param {String} selector the subscription name
  * @param {String} cb the callback function's name
+ * @param {String} selector the subscription name
  */
-jQuery.Controller.processors.subscribe = function(
-  el,
-  event,
-  selector,
-  cb,
-  controller
-) {
-  var subscription = OpenAjax.hub.subscribe(selector, function() {
-    return controller[cb].apply(controller, arguments);
-  });
+export const subscribe = function(el, event, cb, selector) {
+  const subscription = OpenAjax.hub.subscribe(selector, cb);
   return function() {
     OpenAjax.hub.unsubscribe(subscription);
   };
 };
 
-/**
- * @add jQuery.Controller.prototype
- */
-//breaker
 /**
  * @function publish
  * @hide
@@ -56,6 +41,4 @@ jQuery.Controller.processors.subscribe = function(
  * @param {String} message Message name, ex: "Something.Happened".
  * @param {Object} data The data sent.
  */
-jQuery.Controller.prototype.publish = function() {
-  OpenAjax.hub.publish.apply(OpenAjax.hub, arguments);
-};
+export const publish = OpenAjax.hub.publish;
