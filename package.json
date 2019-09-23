@@ -5,6 +5,7 @@
   "dependencies": {
     "ejs": "^2.6.1",
     "jquery": "^3.3.1",
+    "lodash.get": "^4.4.2",
     "qunit": "^2.8.0"
   },
   "prettier": {

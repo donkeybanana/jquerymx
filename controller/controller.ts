@@ -7,7 +7,6 @@ import { default as view, _calculatePosition } from './view/view';
 declare global {
   interface Function {
     defaults: object;
-    name: string;
     pluginName: string;
     fullName: string;
     shortName: string;

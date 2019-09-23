@@ -1,49 +1,44 @@
-import '../model/model.js';
+import Model from '../model/model';
 import '../dom/fixture/fixture.js';
 import { module, test } from 'qunit/qunit/qunit.js';
 
-module('model', {
-  beforeEach: function() {
-    let ids = 0;
+let ids = 0;
 
-    this.model = $.Model.extend(
-      'Person',
-      {
-        findAll: function(params, success, error) {
-          success('findAll');
-        },
-        findOne: function(params, success, error) {
-          success('findOne');
-        },
-        create: function(params, success, error) {
-          success({ zoo: 'zed', id: ++ids }, 'create');
-        },
-        destroy: function(id, success, error) {
-          success('destroy');
-        },
-        update: function(id, attrs, success, error) {
-          success({ zoo: 'monkeys' }, 'update');
-        }
-      },
-      {
-        prettyName: function() {
-          return 'Mr. ' + this.name;
-        }
-      }
-    );
+class Person extends Model {
+  static findAll(params, success, error) {
+    success('findAll');
   }
-});
+  static findOne(params, success, error) {
+    success('findOne');
+  }
+  static create(params, success, error) {
+    success({ zoo: 'zed', id: ++ids }, 'create');
+  }
+  static destroy(id, success, error) {
+    success('destroy');
+  }
+  static update(id, attrs, success, error) {
+    success({ zoo: 'monkeys' }, 'update');
+  }
+
+  prettyName() {
+    return 'Mr. ' + this.name;
+  }
+}
+
+module('model');
 
 test('CRUD', function(assert) {
-  this.model.findAll({}, function(response) {
+  Person.findAll({}, function(response) {
     assert.equal('findAll', response);
   });
 
-  this.model.findOne({}, function(response) {
+  Person.findOne({}, function(response) {
     assert.equal('findOne', response);
   });
 
-  new this.model({ foo: 'bar' }).save(function(person, attrs, create) {
+  const person = new Person({ foo: 'bar' });
+  person.save(function(person, attrs, create) {
     assert.equal(create, 'create');
     assert.equal('bar', inst.foo);
     assert.equal('zed', inst.zoo);
