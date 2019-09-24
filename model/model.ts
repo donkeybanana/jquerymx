@@ -1,6 +1,6 @@
 import * as $ from 'jquery';
 import { classize, underscore, sub } from '../lang/string/string.js';
-import { getAttrs, getId, isNew, isObject } from './helpers';
+import { fixture, getAttrs, getId, isNew, isObject } from './helpers';
 
 declare global {
   interface JQueryModelStatic {
@@ -8,6 +8,16 @@ declare global {
     name: string;
 
     new (args: any[]): JQueryModel;
+
+    // CRUD
+    findAll(
+      data: object,
+      settings?: JQueryAjaxSettings
+    ): Promise<JQueryModel[]>;
+    findOne(data: object, settings?: JQueryAjaxSettings): Promise<JQueryModel>;
+    create(model: JQueryModel, settings?: JQueryAjaxSettings): Promise<any>;
+    update(model: JQueryModel, settings?: JQueryAjaxSettings): Promise<any>;
+    destroy(id: any, settings?: JQueryAjaxSettings): Promise<any>;
 
     attributes: object;
     convert: object;
@@ -109,81 +119,90 @@ export const Model: JQueryModelStatic = class implements JQueryModel {
   }
 
   static model(attrs: JQueryModel | object) {
-    if (attrs instanceof Model) {
-      attrs = attrs.serialize();
-    }
-
-    // @TODO Walk the attrs, used for response serialisation but is probaby quite dangerous
-    return new this(getAttrs(attrs, [this._shortName, 'data', 'attributes']));
+    return new this(attrs instanceof Model ? attrs.serialize() : attrs);
   }
 
   static models(attrs: JQueryModelList | object[] = []) {
-    const list = getList(this.List);
+    const list = getList(this.listType);
     (attrs instanceof List ? attrs.serialize() : attrs).forEach((a: object) => {
       list.push(this.model(a));
     });
     return list;
   }
 
-  static create(attrs, success, error) {
-    return ajax(
-      this._shortName,
-      attrs,
-      success,
-      error,
-      fixture(this, 'Create', '-restCreate')
-    );
+  static create(data: JQueryModel, settings) {
+    return new Promise((success, error) => {
+      return $.ajax({
+        url: `${this._shortName}`,
+        type: 'POST',
+        dataType: 'json',
+        success,
+        error,
+        data,
+        ...settings
+      });
+    })
+      .then(json => {
+        console.log(json);
+        return json;
+      })
+      .then(json => this.model(json as object));
   }
 
-  static update(id, attrs, success, error) {
-    return ajax(
-      this._shortName + '/{' + this.id + '}',
-      {
-        ...attrs,
-        [this.id]: id
-      },
-      success,
-      error,
-      fixture(this, 'Update', '-restUpdate'),
-      'put'
-    );
+  static update(data: JQueryModel, settings) {
+    return new Promise((success, error) => {
+      return $.ajax({
+        url: `${this._shortName}`,
+        type: 'PUT',
+        dataType: 'json',
+        success,
+        error,
+        data,
+        ...settings
+      });
+    }).then(json => this.model(json as object));
   }
 
-  static destroy(id, success, error) {
-    var attrs = {};
-    attrs[this.id] = id;
-    return ajax(
-      this._shortName + '/{' + this.id + '}',
-      attrs,
-      success,
-      error,
-      fixture(this, 'Destroy', '-restDestroy'),
-      'delete'
-    );
+  static destroy(data: JQueryModel, settings) {
+    return new Promise((success, error) => {
+      return $.ajax({
+        url: `${this._shortName}`,
+        type: 'DELETE',
+        dataType: 'json',
+        success,
+        error,
+        data: { [this.id]: data.id },
+        ...settings
+      });
+    }).then(res => res);
   }
 
-  static findAll(params, success, error) {
-    return ajax(
-      this._shortName,
-      params,
-      success,
-      error,
-      fixture(this, 's'),
-      'get',
-      'json ' + this._shortName + '.models'
-    );
+  static findAll(data: object = {}, settings: JQueryAjaxSettings) {
+    return new Promise((success, error) => {
+      return $.ajax({
+        url: this._shortName,
+        type: 'GET',
+        dataType: 'json',
+        success,
+        error,
+        data,
+        ...settings
+      });
+    }).then(json => this.models(json as object[]));
   }
 
-  static findOne(params, success, error) {
-    return ajax(
-      this._shortName + '/{' + this.id + '}',
-      params,
-      success,
-      error,
-      fixture(this),
-      'get',
-      'json ' + this._shortName + '.model'
-    );
+  static findOne(id: any, settings: JQueryAjaxSettings) {
+    return new Promise((success, error) => {
+      return $.ajax({
+        url: `${this._shortName}/${id}`,
+        type: 'GET',
+        dataType: 'json',
+        success,
+        error,
+        data: { [this.id]: id },
+        ...settings
+      });
+    }).then(json => this.model(json as object));
   }
 
   id = null;
@@ -200,8 +219,8 @@ export const Model: JQueryModelStatic = class implements JQueryModel {
   updated = CRUDEvent('updated').bind(this);
   destroyed = CRUDEvent('destroyed').bind(this);
 
-  constructor(attrs = {}) {
-    this.setup(attrs);
+  constructor(attrs: object) {
+    console.log(this.constructor.fullName, attrs);
   }
 
   bind(eventType: string, handler: any) {
@@ -230,18 +249,20 @@ export const Model: JQueryModelStatic = class implements JQueryModel {
     // if (this.constructor.listType) {
     //   this.list = new this.constructor.listType([]);
     // }
-    // @TODO
-    // var converters = {},
-    //   convertName = '* ' + this._shortName + '.model';
-    // converters[convertName + 's'] = this.proxy('models');
-    // converters[convertName] = this.proxy('model');
+    // @TODO these need to work on the static
+    // var name = '* ' + this.constructor._shortName + '.model';
+    // console.log(name);
     // $.ajaxSetup({
-    //   converters: converters
+    //   converters: {
+    //     [name]: console.log,
+    //     [name + 's']: console.log
+    //   }
     // });
   }
 
-  save(success, error) {
-    return makeRequest(this, isNew(this) ? 'create' : 'update', success, error);
+  save() {
+    const Class = this.constructor as JQueryModelStatic;
+    return isNew(this) ? Class.create(this) : Class.update(this);
   }
 
   serialize(): object {
@@ -428,36 +449,10 @@ var makeArray = $.makeArray,
       )
     );
   },
-  // guesses at a fixture name where
-  // extra - where to look for 'MODELNAME'+extra fixtures (ex: "Create" -> '-recipeCreate')
-  // or - if the first fixture fails, default to this
-  fixture = function(model, extra?: any, or?: any) {
-    // @TODO
-    return;
-
-    // // get the underscored shortName of this Model
-    // var u = underscore(model.shortName),
-    //   // the first place to look for fixtures
-    //   f = '-' + u + (extra || '');
-
-    // // if the fixture exists in $.fixture
-    // return $.fixture && $.fixture[f]
-    //   ? // return the name
-    //     f
-    //   : // or return or
-    //     or ||
-    //       // or return a fixture derived from the path
-    //       '//' +
-    //         underscore(model.fullName)
-    //           .replace(/\.models\..*/, '')
-    //           .replace(/\./g, '/') +
-    //         '/fixtures/' +
-    //         u +
-    //         (extra || '') +
-    //         '.json';
-  },
   // returns the best list-like object (list is passed)
   getList = function(type) {
+    // @TODO
+    return [];
     var listType = type || List || Array;
     return new listType();
   },

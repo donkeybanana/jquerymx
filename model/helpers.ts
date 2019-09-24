@@ -7,6 +7,12 @@ import {
   sub
 } from '../lang/string/string.js';
 
+declare global {
+  interface JQueryStatic {
+    fixture: object;
+  }
+}
+
 export const addId = function(
   model: { id: string },
   attrs: { [key: string]: any },
@@ -46,4 +52,26 @@ export const getAttrs = function(raw: object, keys: string[]): object {
     }
   }
   return raw;
+};
+
+export const fixture = (
+  model: JQueryModelStatic,
+  extra: string = '',
+  or?: string
+) => {
+  const short = model.constructor._shortName;
+  const path = (model.constructor as JQueryModelStatic).namespace
+    .replace(/\.models\..*/, '')
+    .replace(/\./g, '/');
+  const key = `-${short}${extra}`;
+
+  if ($.fixture && $.fixture[key]) {
+    return key;
+  }
+
+  if (or) {
+    return or;
+  }
+
+  return `//${path}/fixtures/${short}.json`;
 };
