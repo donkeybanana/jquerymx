@@ -1,10 +1,71 @@
 import Model from '../model/model';
 import '../dom/fixture/fixture.js';
-import { module, test } from 'qunit/qunit/qunit.js';
+import { module, test, todo } from 'qunit/qunit/qunit.js';
 
 module('Model', () => {
+  class Person extends Model {
+    constructor(attrs) {
+      super(attrs);
+
+      this.id = attrs.id;
+      this.name = attrs.name;
+    }
+
+    static findOne() {
+      return super.findOne(
+        {},
+        {
+          fixture: () => ({
+            id: 1,
+            name: 'Alan'
+          })
+        }
+      );
+    }
+
+    static findAll() {
+      return super.findAll(
+        {},
+        {
+          fixture: () => [
+            {
+              id: 1,
+              name: 'Alan'
+            },
+            {
+              id: 2,
+              name: 'Craig'
+            }
+          ]
+        }
+      );
+    }
+
+    static create() {
+      return super.create(
+        {},
+        {
+          fixture: () => ({
+            id: 5
+          })
+        }
+      );
+    }
+
+    static update() {
+      return super.create(
+        {},
+        {
+          fixture: () => ({
+            id: 1,
+            name: 'Craig'
+          })
+        }
+      );
+    }
+  }
+
   module('names and namespaces', () => {
-    class Person extends Model {}
     class MetaPerson extends Model {}
     class Alan extends Model {
       static namespace = 'People';
@@ -47,6 +108,9 @@ module('Model', () => {
     // assert.equal(Person.id, 'id', 'identity');
   });
 
+  todo('model()', assert => {});
+  todo('models()', assert => {});
+
   module('save() magic methods', () => {
     class Foo extends Model {
       constructor(attrs) {
@@ -57,7 +121,7 @@ module('Model', () => {
       }
     }
 
-    test('create()', function(assert) {
+    test('create()', assert => {
       const done = assert.async();
       assert.expect(7);
 
@@ -89,7 +153,7 @@ module('Model', () => {
       assert.ok(promise instanceof Promise, 'returns a Promise');
     });
 
-    test('update()', function(assert) {
+    test('update()', assert => {
       const done = assert.async();
       assert.expect(7);
 
@@ -122,130 +186,62 @@ module('Model', () => {
     });
   });
 
-  module('findAll()', () => {
-    test('returns a deferred', assert => {
-      const promise = Model.findAll(
+  module('findOne()', () => {
+    test('returns a promise', assert => {
+      assert.expect(1);
+
+      const promise = Model.findOne(
         {},
         {
-          fixture: () => {}
+          fixture: () => ({})
         }
       );
       assert.ok(promise instanceof Promise);
     });
 
-    test('json fixture', function(assert) {
+    test('extend', assert => {
       const done = assert.async();
 
       assert.expect(3);
 
-      class Person extends Model {
-        constructor(attrs) {
-          super(attrs);
-
-          this.id = attrs.id;
-          this.name = attrs.name;
-        }
-
-        static findAll() {
-          return super.findAll(
-            {},
-            {
-              fixture: 'test/model/fixtures/people.json'
-            }
-          );
-        }
-      }
-
-      Person.findAll().then(function(people) {
-        assert.equal(people.length, 1, 'returns a list or array');
-        assert.ok(people[0] instanceof Person, 'containing instances');
-        assert.equal(people[0].name, 'Justin', 'with the expected attrs');
+      Person.findOne().then(function(person) {
+        assert.ok(person instanceof Person, 'resolves with an instance');
+        assert.equal(person.id, 1, 'with the expected id');
+        assert.equal(person.name, 'Alan', 'and the expected name');
 
         done();
       });
     });
   });
-});
+  module('findAll()', () => {
+    test('returns a promise', assert => {
+      assert.expect(1);
 
-test('findOne deferred', function(assert) {
-  const done = assert.async();
-
-  assert.expect(2);
-
-  class Person extends Model {
-    constructor(attrs) {
-      super(attrs);
-
-      this.id = attrs.id;
-      this.name = attrs.name;
-    }
-
-    static findOne() {
-      return super.findOne(
+      const promise = Model.findAll(
         {},
         {
-          url: '/people/5',
-          fixture: 'test/model/fixtures/person.json'
+          fixture: () => []
         }
       );
-    }
-  }
+      assert.ok(promise instanceof Promise);
+    });
 
-  Person.findOne().then(function(person) {
-    assert.equal(person.name, 'Justin', 'Got a name back');
-    assert.equal(person.constructor.shortName, 'Person', 'got a class back');
+    test('extend', assert => {
+      const done = assert.async();
 
-    done();
-  });
-});
+      assert.expect(3);
 
-test('save deferred, dixture function', function(assert) {
-  const done = assert.async();
+      Person.findAll().then(function(people) {
+        assert.equal(people.length, 2, 'returns a list or array');
+        assert.ok(people[0] instanceof Person, 'containing instances');
+        assert.equal(people[0].name, 'Alan', 'with the expected attrs');
 
-  class Person extends Model {
-    static create(data, success, error) {
-      return $.ajax({
-        url: '/people',
-        data,
-        type: 'post',
-        dataType: 'json',
-        fixture: function() {
-          return [{ id: 5 }];
-        },
-        success: success
+        done();
       });
-    }
-  }
-
-  new Person({ name: 'Justin' }).save().then(function(person) {
-    assert.equal(person.id, 5, 'we got an id');
-
-    done();
+    });
   });
-});
 
-test('update deferred', function(assert) {
-  const done = assert.async();
-
-  class Person extends Model {
-    static update(id, data) {
-      return $.ajax({
-        url: '/people',
-        data,
-        type: 'POST',
-        dataType: 'json',
-        fixture: function() {
-          return [{ thing: 'er' }];
-        }
-      });
-    }
-  }
-
-  new Person({ name: 'Justin', id: 5 }).save().then(function(person) {
-    assert.equal(person.thing, 'er', 'we got updated');
-
-    done();
-  });
+  todo('destroy()', assert => {});
 });
 
 // test('destroy deferred', function(assert) {

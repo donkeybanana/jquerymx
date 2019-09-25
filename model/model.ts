@@ -141,12 +141,7 @@ export const Model: JQueryModelStatic = class implements JQueryModel {
         data,
         ...settings
       });
-    })
-      .then(json => {
-        console.log(json);
-        return json;
-      })
-      .then(json => this.model(json as object));
+    }).then(json => this.model(json as object));
   }
 
   static update(data: JQueryModel, settings) {
@@ -219,9 +214,7 @@ export const Model: JQueryModelStatic = class implements JQueryModel {
   updated = CRUDEvent('updated').bind(this);
   destroyed = CRUDEvent('destroyed').bind(this);
 
-  constructor(attrs: object) {
-    console.log(this.constructor.fullName, attrs);
-  }
+  constructor(attrs: object) {}
 
   bind(eventType: string, handler: any) {
     return $([this]).bind(eventType, handler);
