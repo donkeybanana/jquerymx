@@ -104,12 +104,16 @@ module('Model', () => {
       assert.equal(AlanBurgoyne.shortName, 'AlanBurgoyne', 'shortName');
       assert.equal(AlanBurgoyne._shortName, 'alan_burgoyne', '_shortName');
     });
-
-    // assert.equal(Person.id, 'id', 'identity');
   });
 
-  todo('model()', assert => {});
-  todo('models()', assert => {});
+  test('new()', assert => {
+    const model = new Person({});
+
+    assert.ok(model instanceof Person, 'returns an instance');
+    assert.ok(model instanceof Model, 'inherits from Model');
+  });
+
+  module('models()', assert => {});
 
   module('save() magic methods', () => {
     class Foo extends Model {
@@ -186,6 +190,8 @@ module('Model', () => {
     });
   });
 
+  todo('destroy()', assert => {});
+
   module('findOne()', () => {
     test('returns a promise', assert => {
       assert.expect(1);
@@ -240,8 +246,6 @@ module('Model', () => {
       });
     });
   });
-
-  todo('destroy()', assert => {});
 });
 
 // test('destroy deferred', function(assert) {
