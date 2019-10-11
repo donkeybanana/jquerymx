@@ -137,10 +137,7 @@ export const Model: JQueryModelStatic<JQueryModel> = class
 
   id: string;
 
-  constructor(attrs: object) {
-    const props = { ...(this.constructor.defaults || {}), ...attrs };
-    Object.keys(props).forEach(attr => (this[attr] = props[attr]));
-  }
+  constructor(_attrs: object) {}
 
   bind(eventType: string, handler: any) {
     return $([this]).bind(eventType, handler);
