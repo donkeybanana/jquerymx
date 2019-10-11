@@ -1,7 +1,6 @@
 import { extend, makeArray } from 'jquery';
 import { bindEvents, unbindEvents } from './bind';
 import { underscore } from '../lang/string/string.js';
-import '../event/destroyed/destroyed.js';
 import { default as view, _calculatePosition } from './view/view';
 
 declare global {

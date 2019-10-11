@@ -1,5 +1,5 @@
 import Model from '../model/model';
-import '../dom/fixture/fixture.js';
+import '../model/fixture.js';
 import { module, test, todo } from 'qunit/qunit/qunit.js';
 
 module('Model', () => {

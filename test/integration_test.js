@@ -1,7 +1,7 @@
 import '../model/model.js';
 import '../controller/controller.ts';
 import '../view/ejs/ejs.js';
-import '../dom/fixture/fixture.js';
+import '../model/fixture.js';
 
 import { module, test } from 'qunit/qunit/qunit.js';
 
