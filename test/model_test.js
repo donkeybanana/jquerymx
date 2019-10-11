@@ -4,13 +4,6 @@ import { module, test, todo } from 'qunit/qunit/qunit.js';
 
 module('Model', () => {
   class Person extends Model {
-    constructor(attrs) {
-      super(attrs);
-
-      this.id = attrs.id;
-      this.name = attrs.name;
-    }
-
     static findOne() {
       return super.findOne(
         {},
@@ -106,24 +99,58 @@ module('Model', () => {
     });
   });
 
-  test('new()', assert => {
-    const model = new Person({});
+  module('constructor', () => {
+    class DefaultPerson extends Model {
+      static defaults = {
+        name: 'Mr Default',
+        age: 999
+      };
+    }
+    class BlankPerson extends DefaultPerson {
+      static defaults = {};
+    }
+    class DefaulterPerson extends DefaultPerson {
+      static defaults = {
+        ...DefaultPerson.defaults,
+        age: 1
+      };
+    }
 
-    assert.ok(model instanceof Person, 'returns an instance');
-    assert.ok(model instanceof Model, 'inherits from Model');
+    test('instanceof', assert => {
+      const model = new Person({});
+
+      assert.ok(model instanceof Person, 'returns an instance');
+      assert.ok(model instanceof Model, 'inherits from Model');
+    });
+
+    test('props', assert => {
+      const model = new Person({
+        name: 'Alan',
+        age: 35
+      });
+
+      assert.equal(model.name, 'Alan', 'name property is set');
+      assert.equal(model.age, 35, 'age property is set');
+    });
+
+    test('defaults', assert => {
+      const blank = new BlankPerson();
+      const defaulted = new DefaultPerson();
+      const defaulter = new DefaulterPerson();
+
+      assert.equal(blank.name, undefined, 'blank has no name');
+      assert.equal(blank.age, undefined, 'blank has no age');
+
+      assert.equal(defaulted.name, 'Mr Default', 'defaulted has a name');
+      assert.equal(defaulted.age, 999, 'defaulted has an age');
+
+      assert.equal(defaulter.name, 'Mr Default', 'defaulter has a name');
+      assert.equal(defaulter.age, 1, 'defaulter has an age');
+    });
   });
 
-  module('models()', assert => {});
-
   module('save() magic methods', () => {
-    class Foo extends Model {
-      constructor(attrs) {
-        super(attrs);
-
-        this.id = attrs.id;
-        this.foo = attrs.foo;
-      }
-    }
+    class Foo extends Model {}
 
     test('create()', assert => {
       const done = assert.async();
