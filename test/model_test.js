@@ -53,7 +53,7 @@ module('Model', () => {
     }
 
     static update() {
-      return super.create(
+      return super.update(
         {},
         {
           fixture: () => ({
