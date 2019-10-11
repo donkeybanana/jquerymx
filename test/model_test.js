@@ -63,6 +63,17 @@ module('Model', () => {
         }
       );
     }
+
+    static destroy() {
+      return super.destroy(
+        {},
+        {
+          fixture: () => ({
+            status: 'bye!'
+          })
+        }
+      );
+    }
   }
 
   module('names and namespaces', () => {
@@ -190,7 +201,28 @@ module('Model', () => {
     });
   });
 
-  todo('destroy()', assert => {});
+  test('destroy()', assert => {
+    const done = assert.async();
+    assert.expect(3);
+
+    class Destroy extends Person {
+      static id = 'name';
+      static destroy(model) {
+        assert.ok(true, 'called by destroy()');
+
+        return super.destroy(model);
+      }
+    }
+
+    const model = new Destroy({ name: 'Alan' });
+    const promise = model.destroy().then(res => {
+      assert.equal(res.status, 'bye!', 'chains with JSON response');
+
+      done();
+    });
+
+    assert.ok(promise instanceof Promise, 'returns a Promise');
+  });
 
   module('findOne()', () => {
     test('returns a promise', assert => {

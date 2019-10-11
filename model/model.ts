@@ -152,6 +152,11 @@ export const Model: JQueryModelStatic<JQueryModel> = class
     return !this.id ? Class.create(this) : Class.update(this);
   }
 
+  destroy() {
+    const Class = this.constructor as JQueryModelStatic<JQueryModel>;
+    return Class.destroy(this);
+  }
+
   serialize(): object {
     return Object.entries(this).reduce(
       (acc, [key, value]) => ({
